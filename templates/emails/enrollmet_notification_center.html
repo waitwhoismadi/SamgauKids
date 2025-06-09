@@ -1,0 +1,45 @@
+{% extends "emails/base.html" %}
+
+{% block title %}New Enrollment Request{% endblock %}
+{% block header %}New Enrollment Request{% endblock %}
+
+{% block content %}
+<h2>Hello {{ center.center_name }}!</h2>
+
+<p>You have received a new enrollment request that requires your approval.</p>
+
+<div class="highlight">
+    <h3>Enrollment Details:</h3>
+    <ul>
+        <li><strong>Child:</strong> {{ child.name }}</li>
+        <li><strong>Parent:</strong> {{ parent.name }}</li>
+        <li><strong>Parent Email:</strong> {{ parent.email }}</li>
+        <li><strong>Program:</strong> {{ program.name }}</li>
+        <li><strong>Schedule:</strong> {{ enrollment.get_schedule_info() }}</li>
+        <li><strong>Enrollment Date:</strong> {{ enrollment.enrollment_date.strftime('%B %d, %Y') }}</li>
+    </ul>
+</div>
+
+{% if child.notes %}
+<div style="background-color: #fff3cd; padding: 15px; border-radius: 5px; margin: 15px 0;">
+    <h4>Important Notes About Child:</h4>
+    <p>{{ child.notes }}</p>
+</div>
+{% endif %}
+
+<div style="text-align: center; margin: 30px 0;">
+    <a href="{{ approve_url }}" class="button">Review & Approve Enrollment</a>
+</div>
+
+<p>Please review this enrollment request and approve or decline it through your center dashboard.</p>
+
+<p>Parent Contact Information:</p>
+<ul>
+    <li><strong>Email:</strong> {{ parent.email }}</li>
+    {% if parent.phone %}
+    <li><strong>Phone:</strong> {{ parent.phone }}</li>
+    {% endif %}
+</ul>
+
+<p>Best regards,<br>The EduPlatform Team</p>
+{% endblock %}

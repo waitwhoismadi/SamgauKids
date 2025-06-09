@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block title %}Teacher Registration - {{ super() }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card mt-5">
+                <div class="card-body p-4">
+                    <div class="text-center mb-4">
+                        <i class="bi bi-person-workspace display-4 text-warning"></i>
+                        <h3 class="mt-2">Teacher Registration</h3>
+                        <p class="text-muted">Join an education center</p>
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle me-2"></i>
+                        You need an <strong>invite code</strong> from an education center to register as a teacher.
+                    </div>
+                    
+                    <form method="POST">
+                        <div class="mb-3">
+                            <label for="invite_code" class="form-label">Invite Code</label>
+                            <input type="text" class="form-control" id="invite_code" name="invite_code" 
+                                   placeholder="Enter 8-character code from your center" maxlength="8" required>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="name" class="form-label">Full Name</label>
+                                <input type="text" class="form-control" id="name" name="name" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="phone" class="form-label">Phone Number</label>
+                                <input type="tel" class="form-control" id="phone" name="phone">
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email Address</label>
+                            <input type="email" class="form-control" id="email" name="email" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Password</label>
+                            <input type="password" class="form-control" id="password" name="password" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="specialization" class="form-label">Teaching Specialization</label>
+                            <input type="text" class="form-control" id="specialization" name="specialization" 
+                                   placeholder="e.g., Mathematics, English, Sports">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="bio" class="form-label">Brief Bio</label>
+                            <textarea class="form-control" id="bio" name="bio" rows="3" 
+                                      placeholder="Tell us about your teaching experience and background"></textarea>
+                        </div>
+                        
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-warning">
+                                <i class="bi bi-person-plus me-2"></i>Join as Teacher
+                            </button>
+                        </div>
+                    </form>
+                    
+                    <div class="text-center mt-4">
+                        <p class="text-muted">
+                            Already have an account? 
+                            <a href="{{ url_for('auth.login') }}" class="text-decoration-none">Sign in here</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,46 @@
+{% extends "emails/base.html" %}
+
+{% block title %}Class Reminder{% endblock %}
+{% block header %}Class Reminder{% endblock %}
+
+{% block content %}
+<h2>Hello {{ enrollment.child.parent.user.name }},</h2>
+
+<p>This is a friendly reminder that {{ child.name }} has a class tomorrow!</p>
+
+<div class="highlight">
+    <h3>Class Information:</h3>
+    <ul>
+        <li><strong>Program:</strong> {{ program.name }}</li>
+        <li><strong>Date:</strong> {{ class_date.strftime('%A, %B %d, %Y') }}</li>
+        <li><strong>Time:</strong> {{ schedule.get_time_range() }}</li>
+        <li><strong>Teacher:</strong> {{ schedule.teacher.user.name }}</li>
+        {% if schedule.room_name %}
+        <li><strong>Room:</strong> {{ schedule.room_name }}</li>
+        {% endif %}
+    </ul>
+</div>
+
+<p><strong>Location:</strong><br>
+{{ center.center_name }}<br>
+{{ center.address }}</p>
+
+{% if program.requirements %}
+<p><strong>Please remember:</strong><br>
+{{ program.requirements }}</p>
+{% endif %}
+
+<p>If {{ child.name }} cannot attend this class, please contact the center as soon as possible.</p>
+
+<p>Contact Information:</p>
+<ul>
+    <li><strong>Email:</strong> {{ center.user.email }}</li>
+    {% if center.user.phone %}
+    <li><strong>Phone:</strong> {{ center.user.phone }}</li>
+    {% endif %}
+</ul>
+
+<p>Looking forward to seeing {{ child.name }} in class!</p>
+
+<p>Best regards,<br>{{ center.center_name }}</p>
+{% endblock %}

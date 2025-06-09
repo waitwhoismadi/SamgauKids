@@ -1,0 +1,30 @@
+Hello {{ user.name }}!
+
+Welcome to EduPlatform! Your {{ role }} account has been successfully created.
+
+{% if role == 'parent' %}
+As a parent, you can now:
+- Add and manage your children's profiles
+- Browse and enroll in educational programs
+- Track attendance and progress
+- Communicate with teachers and centers
+{% elif role == 'center' %}
+As an education center, you can now:
+- Create and manage your programs
+- Schedule classes and assign teachers
+- Manage enrollments and attendance
+- Track your center's performance
+{% elif role == 'teacher' %}
+As a teacher, you can now:
+- View your class schedules
+- Manage student attendance
+- Access student information
+- Communicate with parents
+{% endif %}
+
+Login to your account: {{ login_url }}
+
+If you have any questions or need assistance, please don't hesitate to contact our support team.
+
+Best regards,
+The EduPlatform Team

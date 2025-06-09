@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Programs - {{ super() }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-3">
+            <div class="sidebar">
+                <div class="p-3">
+                    <h5 class="text-white mb-4">
+                        <i class="bi bi-building me-2"></i>{{ center.center_name if center else "Center Management" }}
+                    </h5>
+                    <nav class="nav flex-column">
+                        <a class="nav-link" href="{{ url_for('center.dashboard') }}">
+                            <i class="bi bi-speedometer2 me-2"></i>Overview
+                        </a>
+                        <a class="nav-link active" href="{{ url_for('center.programs') }}">
+                            <i class="bi bi-book me-2"></i>Programs
+                        </a>
+                        <a class="nav-link" href="{{ url_for('center.schedules') }}">
+                            <i class="bi bi-calendar-week me-2"></i>Schedules
+                        </a>
+                        <a class="nav-link" href="{{ url_for('center.enrollments') }}">
+                            <i class="bi bi-people me-2"></i>Enrollments
+                        </a>
+                        <a class="nav-link" href="{{ url_for('center.teachers') }}">
+                            <i class="bi bi-person-workspace me-2"></i>Teachers
+                        </a>
+                        <a class="nav-link" href="{{ url_for('center.profile') }}">
+                            <i class="bi bi-building-gear me-2"></i>Profile Settings
+                        </a>
+                    </nav>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-9">
+            <div class="content-wrapper">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2 class="fw-bold">Manage Programs</h2>
+                    <a href="{{ url_for('center.add_program') }}" class="btn btn-primary">
+                        <i class="bi bi-plus-circle me-2"></i>Add New Program
+                    </a>
+                </div>
+                
+                {% if programs %}
+                <div class="row g-4">
+                    {% for program in programs %}
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card h-100">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <div class="d-flex align-items-center">
+                                    <i class="{{ program.category.icon }} me-2" style="color: {{ program.category.color }}"></i>
+                                    <small class="text-muted">{{ program.category.get_full_path() }}</small>
+                                </div>
+                                {% if program.is_active %}
+                                    <span class="badge bg-success">Active</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">Inactive</span>
+                                {% endif %}
+                            </div>
+                            <div class="card-body">
+                                <h5 class="card-title">{{ program.name }}</h5>
+                                {% if program.short_description %}
+                                <p class="card-text text-muted">{{ program.short_description }}</p>
+                                {% endif %}
+                                
+                                <div class="mb-3">
+                                    {% if program.get_price_display() != "Contact for pricing" %}
+                                    <div class="d-flex align-items-center mb-1">
+                                        <i class="bi bi-currency-dollar me-2 text-success"></i>
+                                        <small>{{ program.get_price_display() }}</small>
+                                    </div>
+                                    {% endif %}
+                                    
+                                    {% if program.duration_minutes %}
+                                    <div class="d-flex align-items-center mb-1">
+                                        <i class="bi bi-clock me-2 text-info"></i>
+                                        <small>{{ program.duration_minutes }} minutes</small>
+                                    </div>
+                                    {% endif %}
+                                    
+                                    <div class="d-flex align-items-center mb-1">
+                                        <i class="bi bi-people me-2 text-warning"></i>
+                                        <small>{{ program.get_age_range() }}</small>
+                                    </div>
+                                    
+                                    {% if program.max_students %}
+                                    <div class="d-flex align-items-center">
+                                        <i class="bi bi-person-check me-2 text-primary"></i>
+                                        <small>Max {{ program.max_students }} students</small>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="card-footer bg-transparent">
+                                <div class="btn-group w-100" role="group">
+                                    <a href="{{ url_for('center.edit_program', program_id=program.id) }}" class="btn btn-outline-primary btn-sm">
+                                        <i class="bi bi-pencil me-1"></i>Edit
+                                    </a>
+                                    <button type="button" class="btn btn-outline-danger btn-sm" onclick="confirmDelete({{ program.id }}, '{{ program.name }}')">
+                                        <i class="bi bi-trash me-1"></i>Delete
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                {% else %}
+                <div class="text-center py-5">
+                    <i class="bi bi-book-x display-1 text-muted mb-4"></i>
+                    <h3>No Programs Yet</h3>
+                    <p class="text-muted mb-4">Start building your education center by adding your first program!</p>
+                    <a href="{{ url_for('center.add_program') }}" class="btn btn-primary btn-lg">
+                        <i class="bi bi-plus-circle me-2"></i>Add Your First Program
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirm Deletion</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete the program "<span id="programName"></span>"? This action cannot be undone.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="deleteForm" method="POST" style="display: inline;">
+                    <button type="submit" class="btn btn-danger">Delete Program</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function confirmDelete(programId, programName) {
+    document.getElementById('programName').textContent = programName;
+    document.getElementById('deleteForm').action = '/center/programs/' + programId + '/delete';
+    new bootstrap.Modal(document.getElementById('deleteModal')).show();
+}
+</script>
+{% endblock %}

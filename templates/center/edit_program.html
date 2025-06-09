@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Program - {{ super() }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h4 class="mb-0">
+                        <i class="bi bi-pencil me-2"></i>Edit Program: {{ program.name }}
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        <h5 class="mb-3">Basic Information</h5>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="name" class="form-label">Program Name *</label>
+                                <input type="text" class="form-control" id="name" name="name" 
+                                       value="{{ program.name }}" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="category_id" class="form-label">Category *</label>
+                                <select class="form-select" id="category_id" name="category_id" required>
+                                    <option value="">Select Category</option>
+                                    {% for category in categories %}
+                                        <option value="{{ category.id }}" 
+                                                {% if category.id == program.category_id %}selected{% endif %}>
+                                            {{ category.get_full_path() }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="short_description" class="form-label">Short Description</label>
+                            <input type="text" class="form-control" id="short_description" name="short_description" 
+                                   value="{{ program.short_description or '' }}" 
+                                   placeholder="Brief description for program cards" maxlength="255">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Full Description</label>
+                            <textarea class="form-control" id="description" name="description" rows="4"
+                                      placeholder="Detailed description of the program, what students will learn, etc.">{{ program.description or '' }}</textarea>
+                        </div>
+                        
+                        <h5 class="mb-3 mt-4">Pricing & Duration</h5>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="price_per_month" class="form-label">Price per Month (₸)</label>
+                                <input type="number" class="form-control" id="price_per_month" name="price_per_month" 
+                                       value="{{ program.price_per_month or '' }}" min="0" step="100">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="price_per_session" class="form-label">Price per Session (₸)</label>
+                                <input type="number" class="form-control" id="price_per_session" name="price_per_session" 
+                                       value="{{ program.price_per_session or '' }}" min="0" step="100">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="duration_minutes" class="form-label">Session Duration (minutes)</label>
+                                <input type="number" class="form-control" id="duration_minutes" name="duration_minutes" 
+                                       value="{{ program.duration_minutes or '' }}" min="15" max="300" step="15">
+                            </div>
+                        </div>
+                        
+                        <h5 class="mb-3 mt-4">Age & Capacity</h5>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="min_age" class="form-label">Minimum Age</label>
+                                <input type="number" class="form-control" id="min_age" name="min_age" 
+                                       value="{{ program.min_age or '' }}" min="0" max="100">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="max_age" class="form-label">Maximum Age</label>
+                                <input type="number" class="form-control" id="max_age" name="max_age" 
+                                       value="{{ program.max_age or '' }}" min="0" max="100">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="max_students" class="form-label">Max Students per Class</label>
+                                <input type="number" class="form-control" id="max_students" name="max_students" 
+                                       value="{{ program.max_students or 20 }}" min="1" max="100">
+                            </div>
+                        </div>
+                        
+                        <h5 class="mb-3 mt-4">Additional Information</h5>
+                        <div class="mb-3">
+                            <label for="requirements" class="form-label">Requirements</label>
+                            <textarea class="form-control" id="requirements" name="requirements" rows="2"
+                                      placeholder="What students need to bring or know beforehand">{{ program.requirements or '' }}</textarea>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="benefits" class="form-label">Benefits</label>
+                            <textarea class="form-control" id="benefits" name="benefits" rows="2"
+                                      placeholder="What students will learn or gain from this program">{{ program.benefits or '' }}</textarea>
+                        </div>
+                        
+                        <h5 class="mb-3 mt-4">Program Status</h5>
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="is_active" name="is_active" 
+                                   {% if program.is_active %}checked{% endif %}>
+                            <label class="form-check-label" for="is_active">
+                                Program is active and visible to parents
+                            </label>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ url_for('center.programs') }}" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left me-2"></i>Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-circle me-2"></i>Update Program
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

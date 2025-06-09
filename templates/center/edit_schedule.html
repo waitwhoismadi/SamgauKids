@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Schedule - {{ super() }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h4 class="mb-0">
+                        <i class="bi bi-pencil me-2"></i>Edit Class Schedule
+                    </h4>
+                    <small class="text-muted">{{ schedule.program.name }} - {{ schedule.get_day_name() }} {{ schedule.get_time_range() }}</small>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        <h5 class="mb-3">Class Information</h5>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="program_id" class="form-label">Program *</label>
+                                <select class="form-select" id="program_id" name="program_id" required>
+                                    <option value="">Select Program</option>
+                                    {% for program in programs %}
+                                        <option value="{{ program.id }}" 
+                                                {% if program.id == schedule.program_id %}selected{% endif %}>
+                                            {{ program.name }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="teacher_id" class="form-label">Teacher *</label>
+                                <select class="form-select" id="teacher_id" name="teacher_id" required>
+                                    <option value="">Select Teacher</option>
+                                    {% for teacher in teachers %}
+                                        <option value="{{ teacher.id }}"
+                                                {% if teacher.id == schedule.teacher_id %}selected{% endif %}>
+                                            {{ teacher.user.name }}{% if teacher.specialization %} - {{ teacher.specialization }}{% endif %}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <h5 class="mb-3 mt-4">Schedule Time</h5>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="day_of_week" class="form-label">Day of Week *</label>
+                                <select class="form-select" id="day_of_week" name="day_of_week" required>
+                                    <option value="">Select Day</option>
+                                    <option value="0" {% if schedule.day_of_week == 0 %}selected{% endif %}>Monday</option>
+                                    <option value="1" {% if schedule.day_of_week == 1 %}selected{% endif %}>Tuesday</option>
+                                    <option value="2" {% if schedule.day_of_week == 2 %}selected{% endif %}>Wednesday</option>
+                                    <option value="3" {% if schedule.day_of_week == 3 %}selected{% endif %}>Thursday</option>
+                                    <option value="4" {% if schedule.day_of_week == 4 %}selected{% endif %}>Friday</option>
+                                    <option value="5" {% if schedule.day_of_week == 5 %}selected{% endif %}>Saturday</option>
+                                    <option value="6" {% if schedule.day_of_week == 6 %}selected{% endif %}>Sunday</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="start_time" class="form-label">Start Time *</label>
+                                <input type="time" class="form-control" id="start_time" name="start_time" 
+                                       value="{{ schedule.start_time.strftime('%H:%M') }}" required>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="end_time" class="form-label">End Time *</label>
+                                <input type="time" class="form-control" id="end_time" name="end_time" 
+                                       value="{{ schedule.end_time.strftime('%H:%M') }}" required>
+                            </div>
+                        </div>
+                        
+                        <h5 class="mb-3 mt-4">Additional Settings</h5>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="max_students" class="form-label">Maximum Students</label>
+                                <input type="number" class="form-control" id="max_students" name="max_students" 
+                                       value="{{ schedule.max_students }}" min="1" max="50">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="room_name" class="form-label">Room/Location</label>
+                                <input type="text" class="form-control" id="room_name" name="room_name" 
+                                       value="{{ schedule.room_name or '' }}" placeholder="e.g., Room A, Gym, Studio 1">
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="notes" class="form-label">Additional Notes</label>
+                            <textarea class="form-control" id="notes" name="notes" rows="2"
+                                      placeholder="Any special instructions or notes about this class">{{ schedule.notes or '' }}</textarea>
+                        </div>
+                        
+                        <h5 class="mb-3 mt-4">Schedule Status</h5>
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="is_active" name="is_active" 
+                                   {% if schedule.is_active %}checked{% endif %}>
+                            <label class="form-check-label" for="is_active">
+                                Schedule is active and accepting enrollments
+                            </label>
+                        </div>
+                        
+                        {% if schedule.enrollments %}
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle me-2"></i>
+                            <strong>{{ schedule.enrollments|length }} students currently enrolled</strong> in this class.
+                            Changing the schedule may affect their enrollment.
+                        </div>
+                        {% endif %}
+                        
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ url_for('center.schedules') }}" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left me-2"></i>Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-circle me-2"></i>Update Schedule
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('end_time').addEventListener('change', function() {
+    const startTime = document.getElementById('start_time').value;
+    const endTime = document.getElementById('end_time').value;
+    
+    if (startTime && endTime && startTime >= endTime) {
+        alert('End time must be after start time');
+        this.value = '';
+    }
+});
+</script>
+{% endblock %}

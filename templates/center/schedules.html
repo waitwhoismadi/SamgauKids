@@ -1,0 +1,230 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Schedules - {{ super() }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-3">
+            <div class="sidebar">
+                <div class="p-3">
+                    <h5 class="text-white mb-4">
+                        <i class="bi bi-building me-2"></i>{{ center.center_name if center else "Center Management" }}
+                    </h5>
+                    <nav class="nav flex-column">
+                        <a class="nav-link" href="{{ url_for('center.dashboard') }}">
+                            <i class="bi bi-speedometer2 me-2"></i>Overview
+                        </a>
+                        <a class="nav-link" href="{{ url_for('center.programs') }}">
+                            <i class="bi bi-book me-2"></i>Programs
+                        </a>
+                        <a class="nav-link active" href="{{ url_for('center.schedules') }}">
+                            <i class="bi bi-calendar-week me-2"></i>Schedules
+                        </a>
+                        <a class="nav-link" href="{{ url_for('center.enrollments') }}">
+                            <i class="bi bi-people me-2"></i>Enrollments
+                        </a>
+                        <a class="nav-link" href="{{ url_for('center.teachers') }}">
+                            <i class="bi bi-person-workspace me-2"></i>Teachers
+                        </a>
+                        <a class="nav-link" href="{{ url_for('center.profile') }}">
+                            <i class="bi bi-building-gear me-2"></i>Profile Settings
+                        </a>
+                    </nav>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-9">
+            <div class="content-wrapper">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2 class="fw-bold">Class Schedules</h2>
+                    <a href="{{ url_for('center.add_schedule') }}" class="btn btn-success">
+                        <i class="bi bi-calendar-plus me-2"></i>Add New Schedule
+                    </a>
+                </div>
+                
+                {% if programs|length == 0 %}
+                <div class="alert alert-warning">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    <strong>No programs available!</strong> You need to create programs before you can schedule classes.
+                    <a href="{{ url_for('center.add_program') }}" class="alert-link">Add your first program</a>.
+                </div>
+                {% elif teachers|length == 0 %}
+                <div class="alert alert-warning">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    <strong>No teachers available!</strong> Share your invite code <strong>{{ center.invite_code }}</strong> with teachers so they can join your center.
+                </div>
+                {% endif %}
+                
+                {% if schedules %}
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Weekly Schedule Overview</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-bordered">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th style="width: 100px;">Time</th>
+                                        <th>Monday</th>
+                                        <th>Tuesday</th>
+                                        <th>Wednesday</th>
+                                        <th>Thursday</th>
+                                        <th>Friday</th>
+                                        <th>Saturday</th>
+                                        <th>Sunday</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for hour in range(8, 21) %}
+                                    <tr>
+                                        <td class="text-center fw-bold">{{ "%02d:00"|format(hour) }}</td>
+                                        {% for day in range(7) %}
+                                        <td style="height: 60px; position: relative;">
+                                            {% for schedule in schedules %}
+                                                {% if schedule.day_of_week == day and schedule.start_time.hour <= hour < schedule.end_time.hour %}
+                                                    {% if schedule.start_time.hour == hour %}
+                                                    <div class="schedule-block p-2 rounded small" 
+                                                         style="background-color: {{ schedule.program.category.color }}20; 
+                                                                border-left: 3px solid {{ schedule.program.category.color }}; 
+                                                                margin-bottom: 2px;">
+                                                        <div class="fw-bold">{{ schedule.program.name }}</div>
+                                                        <div class="text-muted">{{ schedule.get_time_range() }}</div>
+                                                        <div class="text-muted">{{ schedule.teacher.user.name }}</div>
+                                                    </div>
+                                                    {% endif %}
+                                                {% endif %}
+                                            {% endfor %}
+                                        </td>
+                                        {% endfor %}
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row g-4">
+                    {% for schedule in schedules %}
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card h-100">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <div class="d-flex align-items-center">
+                                    <i class="{{ schedule.program.category.icon }} me-2" 
+                                       style="color: {{ schedule.program.category.color }}"></i>
+                                    <span class="fw-bold">{{ schedule.get_day_name() }}</span>
+                                </div>
+                                {% if schedule.is_active %}
+                                    <span class="badge bg-success">Active</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">Inactive</span>
+                                {% endif %}
+                            </div>
+                            <div class="card-body">
+                                <h6 class="card-title">{{ schedule.program.name }}</h6>
+                                <p class="text-muted small mb-2">{{ schedule.program.category.get_full_path() }}</p>
+                                
+                                <div class="mb-3">
+                                    <div class="d-flex align-items-center mb-1">
+                                        <i class="bi bi-clock me-2 text-primary"></i>
+                                        <small>{{ schedule.get_time_range() }} ({{ schedule.get_duration_minutes() }} min)</small>
+                                    </div>
+                                    
+                                    <div class="d-flex align-items-center mb-1">
+                                        <i class="bi bi-person me-2 text-success"></i>
+                                        <small>{{ schedule.teacher.user.name }}</small>
+                                    </div>
+                                    
+                                    <div class="d-flex align-items-center mb-1">
+                                        <i class="bi bi-people me-2 text-info"></i>
+                                        <small>{{ schedule.enrollments|length }}/{{ schedule.max_students }} enrolled</small>
+                                    </div>
+                                    
+                                    {% if schedule.room_name %}
+                                    <div class="d-flex align-items-center">
+                                        <i class="bi bi-geo-alt me-2 text-warning"></i>
+                                        <small>{{ schedule.room_name }}</small>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                
+                                {% if schedule.notes %}
+                                <p class="small text-muted mb-3">{{ schedule.notes }}</p>
+                                {% endif %}
+                            </div>
+                            <div class="card-footer bg-transparent">
+                                <div class="btn-group w-100" role="group">
+                                    <a href="{{ url_for('center.edit_schedule', schedule_id=schedule.id) }}" 
+                                       class="btn btn-outline-primary btn-sm">
+                                        <i class="bi bi-pencil me-1"></i>Edit
+                                    </a>
+                                    <button type="button" class="btn btn-outline-danger btn-sm" 
+                                            onclick="confirmDeleteSchedule({{ schedule.id }}, '{{ schedule.program.name }}', '{{ schedule.get_day_name() }} {{ schedule.get_time_range() }}')">
+                                        <i class="bi bi-trash me-1"></i>Delete
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                {% else %}
+                <div class="text-center py-5">
+                    <i class="bi bi-calendar-x display-1 text-muted mb-4"></i>
+                    <h3>No Class Schedules Yet</h3>
+                    <p class="text-muted mb-4">
+                        Create your first class schedule to start accepting student enrollments!
+                        {% if programs|length > 0 and teachers|length > 0 %}
+                        <br>You have {{ programs|length }} program(s) and {{ teachers|length }} teacher(s) ready.
+                        {% endif %}
+                    </p>
+                    {% if programs|length > 0 and teachers|length > 0 %}
+                    <a href="{{ url_for('center.add_schedule') }}" class="btn btn-success btn-lg">
+                        <i class="bi bi-calendar-plus me-2"></i>Create Your First Schedule
+                    </a>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="deleteScheduleModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirm Schedule Deletion</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete the schedule for "<span id="scheduleName"></span>" on <span id="scheduleTime"></span>?
+                <br><br>
+                <div class="alert alert-warning">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    This will also cancel any active student enrollments in this class.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="deleteScheduleForm" method="POST" style="display: inline;">
+                    <button type="submit" class="btn btn-danger">Delete Schedule</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function confirmDeleteSchedule(scheduleId, programName, scheduleTime) {
+    document.getElementById('scheduleName').textContent = programName;
+    document.getElementById('scheduleTime').textContent = scheduleTime;
+    document.getElementById('deleteScheduleForm').action = '/center/schedules/' + scheduleId + '/delete';
+    new bootstrap.Modal(document.getElementById('deleteScheduleModal')).show();
+}
+</script>
+{% endblock %}

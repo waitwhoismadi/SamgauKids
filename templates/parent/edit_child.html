@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+
+{% block title %}Edit {{ child.name }} - {{ super() }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4><i class="bi bi-pencil me-2"></i>Edit {{ child.name }}</h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST" enctype="multipart/form-data">
+                        <div class="text-center mb-4">
+                            <div id="photoPreview" class="mb-3">
+                                {% if child.photo_url %}
+                                <img src="{{ url_for('static', filename='uploads/' + child.photo_url) }}" 
+                                     class="rounded-circle mx-auto" 
+                                     style="width: 120px; height: 120px; object-fit: cover;">
+                                {% else %}
+                                <div class="bg-light rounded-circle mx-auto d-flex align-items-center justify-content-center" 
+                                     style="width: 120px; height: 120px;">
+                                    <i class="bi bi-person display-4 text-muted"></i>
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="mb-3">
+                                <label for="photo" class="form-label">Update Photo</label>
+                                <input type="file" class="form-control" id="photo" name="photo" 
+                                       accept="image/*" onchange="previewPhoto(this)">
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="name" class="form-label">Child Name *</label>
+                                <input type="text" class="form-control" id="name" name="name" 
+                                       value="{{ child.name }}" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="birth_date" class="form-label">Birth Date</label>
+                                <input type="date" class="form-control" id="birth_date" name="birth_date" 
+                                       value="{{ child.birth_date.strftime('%Y-%m-%d') if child.birth_date }}">
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="grade" class="form-label">Grade/Class</label>
+                            <input type="text" class="form-control" id="grade" name="grade" 
+                                   value="{{ child.grade or '' }}">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="notes" class="form-label">Notes</label>
+                            <textarea class="form-control" id="notes" name="notes" rows="3">{{ child.notes or '' }}</textarea>
+                        </div>
+                        
+                        {% set active_enrollments = child.enrollments|selectattr('status', 'equalto', 'active')|list %}
+                        {% if active_enrollments %}
+                        <div class="alert alert-info">
+                            <h6><i class="bi bi-info-circle me-2"></i>Current Enrollments:</h6>
+                            <ul class="mb-0">
+                                {% for enrollment in active_enrollments %}
+                                <li>
+                                    <strong>{{ enrollment.schedule.program.name }}</strong> 
+                                    at {{ enrollment.schedule.program.center.center_name }}
+                                    <br><small class="text-muted">{{ enrollment.schedule.get_day_name() }} {{ enrollment.schedule.get_time_range() }}</small>
+                                    <button type="button" class="btn btn-sm btn-outline-danger ms-2" 
+                                            onclick="cancelEnrollment({{ enrollment.id }}, '{{ enrollment.schedule.program.name }}')">
+                                        Cancel
+                                    </button>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        {% endif %}
+                        
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ url_for('parent.manage_children') }}" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left me-2"></i>Back to Children
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-circle me-2"></i>Update Child
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function previewPhoto(input) {
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        
+        reader.onload = function(e) {
+            document.getElementById('photoPreview').innerHTML = `
+                <img src="${e.target.result}" class="rounded-circle mx-auto" 
+                     style="width: 120px; height: 120px; object-fit: cover;">
+            `;
+        }
+        
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
+function cancelEnrollment(enrollmentId, programName) {
+    if (confirm(`Are you sure you want to cancel enrollment in ${programName}?`)) {
+        fetch(`/enrollment/${enrollmentId}/cancel`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(data.message);
+                location.reload();
+            } else {
+                alert(data.error);
+            }
+        })
+        .catch(error => {
+            alert('Error cancelling enrollment. Please try again.');
+        });
+    }
+}
+</script>
+{% endblock %}

@@ -1,0 +1,265 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Enrollments - {{ super() }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-3">
+            <div class="sidebar">
+                <div class="p-3">
+                    <h5 class="text-white mb-4">
+                        <i class="bi bi-building me-2"></i>{{ center.center_name if center else "Center Management" }}
+                    </h5>
+                    <nav class="nav flex-column">
+                        <a class="nav-link" href="{{ url_for('center.dashboard') }}">
+                            <i class="bi bi-speedometer2 me-2"></i>Overview
+                        </a>
+                        <a class="nav-link" href="{{ url_for('center.programs') }}">
+                            <i class="bi bi-book me-2"></i>Programs
+                        </a>
+                        <a class="nav-link" href="{{ url_for('center.schedules') }}">
+                            <i class="bi bi-calendar-week me-2"></i>Schedules
+                        </a>
+                        <a class="nav-link active" href="{{ url_for('center.enrollments') }}">
+                            <i class="bi bi-people me-2"></i>Enrollments
+                        </a>
+                        <a class="nav-link" href="{{ url_for('center.teachers') }}">
+                            <i class="bi bi-person-workspace me-2"></i>Teachers
+                        </a>
+                        <a class="nav-link" href="{{ url_for('center.profile') }}">
+                            <i class="bi bi-building-gear me-2"></i>Profile Settings
+                        </a>
+                    </nav>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-9">
+            <div class="content-wrapper">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2 class="fw-bold">Enrollment Management</h2>
+                    <span class="badge bg-info fs-6">
+                        {{ (active_enrollments|length + pending_enrollments|length + cancelled_enrollments|length) }} Total
+                    </span>
+                </div>
+                
+                <div class="row mb-4">
+                    <div class="col-md-4">
+                        <div class="card text-center bg-success text-white">
+                            <div class="card-body">
+                                <h2>{{ active_enrollments|length }}</h2>
+                                <p class="mb-0">Active Enrollments</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card text-center bg-warning text-white">
+                            <div class="card-body">
+                                <h2>{{ pending_enrollments|length }}</h2>
+                                <p class="mb-0">Pending Approval</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card text-center bg-info text-white">
+                            <div class="card-body">
+                                <h2>{{ cancelled_enrollments|length }}</h2>
+                                <p class="mb-0">Cancelled</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                {% if pending_enrollments %}
+                <div class="card mb-4">
+                    <div class="card-header bg-warning text-white">
+                        <h5 class="mb-0">
+                            <i class="bi bi-clock me-2"></i>Pending Approval ({{ pending_enrollments|length }})
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Child</th>
+                                        <th>Program</th>
+                                        <th>Schedule</th>
+                                        <th>Parent</th>
+                                        <th>Request Date</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for enrollment in pending_enrollments %}
+                                    <tr>
+                                        <td>
+                                            <strong>{{ enrollment.child.name }}</strong>
+                                            {% if enrollment.child.calculate_age() %}
+                                            <br><small class="text-muted">{{ enrollment.child.calculate_age() }} years old</small>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ enrollment.schedule.program.name }}</td>
+                                        <td>
+                                            {{ enrollment.schedule.get_day_name() }} {{ enrollment.schedule.get_time_range() }}
+                                            {% if enrollment.schedule.room_name %}
+                                            <br><small class="text-muted">{{ enrollment.schedule.room_name }}</small>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {{ enrollment.child.parent.user.name }}
+                                            <br><small class="text-muted">{{ enrollment.child.parent.user.email }}</small>
+                                        </td>
+                                        <td>{{ enrollment.enrollment_date.strftime('%B %d, %Y') }}</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-success me-2" 
+                                                    onclick="approveEnrollment({{ enrollment.id }})">
+                                                Approve
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-danger" 
+                                                    onclick="rejectEnrollment({{ enrollment.id }})">
+                                                Reject
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="bi bi-check-circle me-2"></i>Active Enrollments ({{ active_enrollments|length }})
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        {% if active_enrollments %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Child</th>
+                                        <th>Program</th>
+                                        <th>Schedule</th>
+                                        <th>Parent Contact</th>
+                                        <th>Start Date</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for enrollment in active_enrollments %}
+                                    <tr>
+                                        <td>
+                                            <strong>{{ enrollment.child.name }}</strong>
+                                            {% if enrollment.child.calculate_age() %}
+                                            <br><small class="text-muted">{{ enrollment.child.calculate_age() }} years old</small>
+                                            {% endif %}
+                                            {% if enrollment.child.grade %}
+                                            <br><small class="text-muted">{{ enrollment.child.grade }}</small>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {{ enrollment.schedule.program.name }}
+                                            <br><small class="text-muted">{{ enrollment.schedule.program.category.name }}</small>
+                                        </td>
+                                        <td>
+                                            {{ enrollment.schedule.get_day_name() }} {{ enrollment.schedule.get_time_range() }}
+                                            {% if enrollment.schedule.room_name %}
+                                            <br><small class="text-muted">{{ enrollment.schedule.room_name }}</small>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {{ enrollment.child.parent.user.name }}
+                                            <br><small class="text-muted">{{ enrollment.child.parent.user.email }}</small>
+                                            {% if enrollment.child.parent.user.phone %}
+                                            <br><small class="text-muted">{{ enrollment.child.parent.user.phone }}</small>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ enrollment.enrollment_date.strftime('%B %d, %Y') }}</td>
+                                        <td>
+                                            <span class="badge bg-success">Active</span>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% else %}
+                        <div class="text-center py-4">
+                            <i class="bi bi-people display-4 text-muted mb-3"></i>
+                            <h5>No Active Enrollments</h5>
+                            <p class="text-muted">No students are currently enrolled in your programs.</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function approveEnrollment(enrollmentId) {
+    if (!confirm('Approve this enrollment request?')) {
+        return;
+    }
+    
+    fetch(`/center/enrollment/${enrollmentId}/approve`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.success) {
+            showNotification(data.message, 'success');
+            setTimeout(() => {
+                window.location.reload();
+            }, 1500);
+        } else {
+            throw new Error(data.error || 'Failed to approve enrollment');
+        }
+    })
+    .catch(error => {
+        console.error('Approve enrollment error:', error);
+        showNotification(error.message || 'Error approving enrollment. Please try again.', 'error');
+    });
+}
+    
+
+function rejectEnrollment(enrollmentId) {
+    if (confirm('Reject this enrollment request? This action cannot be undone.')) {
+        fetch(`/enrollment/${enrollmentId}/cancel`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Enrollment request rejected.');
+                location.reload();
+            } else {
+                alert(data.error);
+            }
+        })
+        .catch(error => {
+            alert('Error rejecting enrollment. Please try again.');
+        });
+    }
+}
+</script>
+{% endblock %}

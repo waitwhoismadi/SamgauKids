@@ -1,0 +1,44 @@
+{% extends "emails/base.html" %}
+
+{% block title %}Welcome to EduPlatform!{% endblock %}
+{% block header %}Welcome to EduPlatform!{% endblock %}
+
+{% block content %}
+<h2>Hello {{ user.name }}!</h2>
+
+<p>Welcome to EduPlatform! Your {{ role }} account has been successfully created.</p>
+
+{% if role == 'parent' %}
+<p>As a parent, you can now:</p>
+<ul>
+    <li>Add and manage your children's profiles</li>
+    <li>Browse and enroll in educational programs</li>
+    <li>Track attendance and progress</li>
+    <li>Communicate with teachers and centers</li>
+</ul>
+{% elif role == 'center' %}
+<p>As an education center, you can now:</p>
+<ul>
+    <li>Create and manage your programs</li>
+    <li>Schedule classes and assign teachers</li>
+    <li>Manage enrollments and attendance</li>
+    <li>Track your center's performance</li>
+</ul>
+{% elif role == 'teacher' %}
+<p>As a teacher, you can now:</p>
+<ul>
+    <li>View your class schedules</li>
+    <li>Manage student attendance</li>
+    <li>Access student information</li>
+    <li>Communicate with parents</li>
+</ul>
+{% endif %}
+
+<div style="text-align: center; margin: 30px 0;">
+    <a href="{{ login_url }}" class="button">Login to Your Account</a>
+</div>
+
+<p>If you have any questions or need assistance, please don't hesitate to contact our support team.</p>
+
+<p>Best regards,<br>The EduPlatform Team</p>
+{% endblock %}

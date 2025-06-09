@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+
+{% block title %}My Students - {{ super() }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-3">
+            <div class="sidebar">
+                <div class="p-3">
+                    <h5 class="text-white mb-4">
+                        <i class="bi bi-person-workspace me-2"></i>Teaching Portal
+                    </h5>
+                    {% if teacher and teacher.center %}
+                    <div class="text-white-50 mb-3">
+                        <small>
+                            <i class="bi bi-building me-1"></i>{{ teacher.center.center_name }}
+                        </small>
+                    </div>
+                    {% endif %}
+                    <nav class="nav flex-column">
+                        <a class="nav-link" href="{{ url_for('teacher.dashboard') }}">
+                            <i class="bi bi-speedometer2 me-2"></i>Overview
+                        </a>
+                        <a class="nav-link" href="{{ url_for('teacher.schedule') }}">
+                            <i class="bi bi-calendar-week me-2"></i>My Schedule
+                        </a>
+                        <a class="nav-link active" href="{{ url_for('teacher.students') }}">
+                            <i class="bi bi-people me-2"></i>Students
+                        </a>
+                        <a class="nav-link" href="#classes">
+                            <i class="bi bi-journal-bookmark me-2"></i>Classes
+                        </a>
+                    </nav>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-9">
+            <div class="content-wrapper">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2 class="fw-bold">My Students</h2>
+                    <span class="badge bg-success fs-6">{{ students_by_class|length }} Classes</span>
+                </div>
+                
+                {% if students_by_class %}
+                {% for class_name, class_data in students_by_class.items() %}
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h5 class="mb-0">
+                                    <i class="{{ class_data.schedule.program.category.icon }} me-2" 
+                                       style="color: {{ class_data.schedule.program.category.color }}"></i>
+                                    {{ class_name }}
+                                </h5>
+                                <small class="text-muted">{{ class_data.students|length }} enrolled students</small>
+                            </div>
+                            <span class="badge" style="background-color: {{ class_data.schedule.program.category.color }}20; 
+                                                      color: {{ class_data.schedule.program.category.color }}">
+                                {{ class_data.schedule.program.category.name }}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        {% if class_data.students %}
+                        <div class="row g-3">
+                            {% for enrollment in class_data.students %}
+                            <div class="col-md-6 col-lg-4">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div class="d-flex align-items-center">
+                                            <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center me-3" 
+                                                 style="width: 40px; height: 40px;">
+                                                <i class="bi bi-person text-white"></i>
+                                            </div>
+                                            <div class="flex-grow-1">
+                                                <h6 class="mb-1">{{ enrollment.child.name }}</h6>
+                                                <small class="text-muted">
+                                                    {% if enrollment.child.birth_date %}
+                                                        Age: {{ (2024 - enrollment.child.birth_date.year) }} years
+                                                    {% endif %}
+                                                    {% if enrollment.child.grade %}
+                                                        • Grade: {{ enrollment.child.grade }}
+                                                    {% endif %}
+                                                </small>
+                                                <div class="small text-muted">
+                                                    <i class="bi bi-calendar me-1"></i>Enrolled: {{ enrollment.enrollment_date.strftime('%B %d, %Y') }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        {% if enrollment.child.notes %}
+                                        <div class="mt-2 p-2 bg-light rounded">
+                                            <small class="text-muted">{{ enrollment.child.notes }}</small>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <div class="text-center text-muted py-3">
+                            <i class="bi bi-person-x display-4 mb-2"></i>
+                            <p>No students enrolled in this class yet.</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+                
+                {% else %}
+                <div class="text-center py-5">
+                    <i class="bi bi-people-x display-1 text-muted mb-4"></i>
+                    <h3>No Students Yet</h3>
+                    <p class="text-muted mb-4">
+                        You don't have any students assigned to your classes yet. 
+                        Students will appear here once they enroll in your scheduled classes.
+                    </p>
+                    <a href="{{ url_for('teacher.schedule') }}" class="btn btn-outline-primary">
+                        <i class="bi bi-calendar-week me-2"></i>View My Schedule
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,305 @@
+{% extends "base.html" %}
+
+{% block title %}Login - {{ super() }}{% endblock %}
+
+{% block content %}
+<div class="min-vh-100 d-flex align-items-center bg-gradient">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6 col-lg-5 col-xl-4">
+                <div class="card border-0 shadow-large rounded-3xl">
+                    <div class="card-body p-5">
+                        <div class="text-center mb-5">
+                            <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-4" 
+                                 style="width: 80px; height: 80px;">
+                                <i class="bi bi-box-arrow-in-right text-primary" style="font-size: 2rem;"></i>
+                            </div>
+                            <h2 class="fw-bold text-gray-800 mb-2">Welcome Back!</h2>
+                            <p class="text-muted">Sign in to your SamgauKids account</p>
+                        </div>
+                        
+                        <form method="POST" class="needs-validation" novalidate>
+                            <div class="mb-4">
+                                <label for="email" class="form-label">Email Address</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-gray-50 border-end-0">
+                                        <i class="bi bi-envelope text-muted"></i>
+                                    </span>
+                                    <input type="email" 
+                                           class="form-control border-start-0 bg-gray-50" 
+                                           id="email" 
+                                           name="email" 
+                                           placeholder="your@email.com"
+                                           required>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <label for="password" class="form-label">Password</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-gray-50 border-end-0">
+                                        <i class="bi bi-lock text-muted"></i>
+                                    </span>
+                                    <input type="password" 
+                                           class="form-control border-start-0 bg-gray-50" 
+                                           id="password" 
+                                           name="password" 
+                                           placeholder="Enter your password"
+                                           required>
+                                    <button class="btn btn-outline-secondary border-start-0" 
+                                            type="button" 
+                                            onclick="togglePassword()">
+                                        <i class="bi bi-eye" id="toggleIcon"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="remember" name="remember">
+                                    <label class="form-check-label text-muted" for="remember">
+                                        Remember me
+                                    </label>
+                                </div>
+                                <a href="#" class="text-decoration-none text-primary fw-medium">
+                                    Forgot password?
+                                </a>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary w-100 py-3 mb-4 fw-medium">
+                                <i class="bi bi-box-arrow-in-right me-2"></i>
+                                Sign In
+                            </button>
+                        </form>
+                        
+                        <div class="position-relative text-center mb-4">
+                            <hr class="border-gray-200">
+                            <span class="position-absolute top-50 start-50 translate-middle bg-white px-3 text-muted small">
+                                or continue with
+                            </span>
+                        </div>
+                        
+                        <div class="row g-2 mb-4">
+                            <div class="col-6">
+                                <button type="button" class="btn btn-outline-secondary w-100 py-2">
+                                    <i class="bi bi-google text-danger me-2"></i>
+                                    Google
+                                </button>
+                            </div>
+                            <div class="col-6">
+                                <button type="button" class="btn btn-outline-secondary w-100 py-2">
+                                    <i class="bi bi-facebook text-primary me-2"></i>
+                                    Facebook
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="text-center">
+                            <p class="text-muted mb-0">
+                                Don't have an account? 
+                                <a href="{{ url_for('auth.register_choice') }}" class="text-primary fw-medium text-decoration-none">
+                                    Create one here
+                                </a>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center mt-4">
+                    <div class="row g-3">
+                        <div class="col-4">
+                            <div class="text-primary fw-bold">500+</div>
+                            <div class="text-muted small">Families</div>
+                        </div>
+                        <div class="col-4">
+                            <div class="text-primary fw-bold">50+</div>
+                            <div class="text-muted small">Centers</div>
+                        </div>
+                        <div class="col-4">
+                            <div class="text-primary fw-bold">200+</div>
+                            <div class="text-muted small">Programs</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-6 offset-lg-1 d-none d-lg-block">
+                <div class="position-relative h-100 d-flex align-items-center">
+                    <div class="text-center">
+                        <div class="mb-5">
+                            <h1 class="display-4 fw-bold text-gray-800 mb-4">
+                                Join the <span class="text-primary">SamgauKids</span> Community
+                            </h1>
+                            <p class="lead text-muted mb-4">
+                                Connect with amazing education centers and programs in Astana. 
+                                Help your children discover their potential.
+                            </p>
+                        </div>
+                        
+                        <div class="row g-4">
+                            <div class="col-6">
+                                <div class="card border-0 bg-primary bg-opacity-5 rounded-xl text-center p-3">
+                                    <i class="bi bi-map text-primary fs-1 mb-2"></i>
+                                    <h6 class="fw-bold">Interactive Map</h6>
+                                    <p class="text-muted small mb-0">Find centers near you</p>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="card border-0 bg-success bg-opacity-5 rounded-xl text-center p-3">
+                                    <i class="bi bi-shield-check text-success fs-1 mb-2"></i>
+                                    <h6 class="fw-bold">Verified Centers</h6>
+                                    <p class="text-muted small mb-0">Quality guaranteed</p>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="card border-0 bg-warning bg-opacity-5 rounded-xl text-center p-3">
+                                    <i class="bi bi-lightning text-warning fs-1 mb-2"></i>
+                                    <h6 class="fw-bold">Quick Booking</h6>
+                                    <p class="text-muted small mb-0">Enroll in seconds</p>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="card border-0 bg-info bg-opacity-5 rounded-xl text-center p-3">
+                                    <i class="bi bi-headset text-info fs-1 mb-2"></i>
+                                    <h6 class="fw-bold">Local Support</h6>
+                                    <p class="text-muted small mb-0">We're here to help</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.bg-gradient {
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+}
+
+.input-group-text {
+    border-color: var(--gray-200);
+}
+
+.form-control {
+    border-color: var(--gray-200);
+}
+
+.form-control:focus {
+    border-color: var(--primary-500);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.rounded-xl {
+    border-radius: 0.75rem !important;
+}
+
+.rounded-3xl {
+    border-radius: 1.5rem !important;
+}
+
+.shadow-large {
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+}
+
+.text-gray-800 {
+    color: var(--gray-800) !important;
+}
+
+.bg-gray-50 {
+    background-color: var(--gray-50) !important;
+}
+
+.border-gray-200 {
+    border-color: var(--gray-200) !important;
+}
+
+.min-vh-100 {
+    min-height: 100vh;
+}
+
+.was-validated .form-control:valid {
+    border-color: var(--success-500);
+}
+
+.was-validated .form-control:invalid {
+    border-color: var(--danger-500);
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+}
+
+.card:hover {
+    transform: translateY(-2px);
+}
+
+.card {
+    transition: all 0.3s ease;
+}
+
+@media (max-width: 768px) {
+    .min-vh-100 {
+        min-height: auto;
+        padding: 2rem 0;
+    }
+    
+    .card-body {
+        padding: 2rem !important;
+    }
+}
+</style>
+
+<script>
+function togglePassword() {
+    const passwordInput = document.getElementById('password');
+    const toggleIcon = document.getElementById('toggleIcon');
+    
+    if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        toggleIcon.classList.remove('bi-eye');
+        toggleIcon.classList.add('bi-eye-slash');
+    } else {
+        passwordInput.type = 'password';
+        toggleIcon.classList.remove('bi-eye-slash');
+        toggleIcon.classList.add('bi-eye');
+    }
+}
+
+(function() {
+    'use strict';
+    window.addEventListener('load', function() {
+        var forms = document.getElementsByClassName('needs-validation');
+        var validation = Array.prototype.filter.call(forms, function(form) {
+            form.addEventListener('submit', function(event) {
+                if (form.checkValidity() === false) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            }, false);
+        });
+    }, false);
+})();
+
+document.querySelector('form').addEventListener('submit', function(e) {
+    const submitBtn = this.querySelector('button[type="submit"]');
+    submitBtn.innerHTML = '<i class="bi bi-arrow-clockwise spin me-2"></i>Signing in...';
+    submitBtn.disabled = true;
+});
+
+const style = document.createElement('style');
+style.textContent = `
+    .spin {
+        animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+`;
+document.head.appendChild(style);
+</script>
+{% endblock %}

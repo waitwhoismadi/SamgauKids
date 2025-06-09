@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}Center Registration - {{ super() }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card mt-5">
+                <div class="card-body p-4">
+                    <div class="text-center mb-4">
+                        <i class="bi bi-building display-4 text-success"></i>
+                        <h3 class="mt-2">Center Registration</h3>
+                        <p class="text-muted">Register your education center</p>
+                    </div>
+                    
+                    <form method="POST">
+                        <div class="mb-3">
+                            <label for="center_name" class="form-label">Center Name</label>
+                            <input type="text" class="form-control" id="center_name" name="center_name" required>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="name" class="form-label">Contact Person</label>
+                                <input type="text" class="form-control" id="name" name="name" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="phone" class="form-label">Phone Number</label>
+                                <input type="tel" class="form-control" id="phone" name="phone">
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email Address</label>
+                            <input type="email" class="form-control" id="email" name="email" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Password</label>
+                            <input type="password" class="form-control" id="password" name="password" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="address" class="form-label">Center Address</label>
+                            <input type="text" class="form-control" id="address" name="address" 
+                                   placeholder="Enter full address in Astana" required>
+                            <div class="form-text">We'll automatically locate your center on the map</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Center Description</label>
+                            <textarea class="form-control" id="description" name="description" rows="3" 
+                                      placeholder="Describe your education center and what makes it special"></textarea>
+                        </div>
+                        
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-success">
+                                <i class="bi bi-building-add me-2"></i>Register Center
+                            </button>
+                        </div>
+                    </form>
+                    
+                    <div class="text-center mt-4">
+                        <p class="text-muted">
+                            Already have an account? 
+                            <a href="{{ url_for('auth.login') }}" class="text-decoration-none">Sign in here</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

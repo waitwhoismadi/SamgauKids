@@ -1,0 +1,326 @@
+{% extends "base.html" %}
+
+{% block title %}{{ program.name }} - {{ super() }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .hero-section {
+        background: linear-gradient(135deg, {{ program.category.color }}20 0%, {{ program.category.color }}40 100%);
+        padding: 3rem 0;
+        margin-bottom: 2rem;
+    }
+    
+    .schedule-card {
+        transition: transform 0.2s ease-in-out;
+        border-left: 4px solid {{ program.category.color }};
+    }
+    
+    .schedule-card:hover {
+        transform: translateY(-2px);
+    }
+    
+    .availability-badge {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+    }
+    
+    .features-list {
+        list-style: none;
+        padding: 0;
+    }
+    
+    .features-list li {
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .features-list li:last-child {
+        border-bottom: none;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="hero-section">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <div class="d-flex align-items-center mb-3">
+                    <i class="{{ program.category.icon }} display-4 me-3" style="color: {{ program.category.color }}"></i>
+                    <div>
+                        <h1 class="display-5 fw-bold mb-1">{{ program.name }}</h1>
+                        <p class="lead text-muted mb-0">{{ program.category.get_full_path() }}</p>
+                    </div>
+                </div>
+                {% if program.short_description %}
+                <p class="lead">{{ program.short_description }}</p>
+                {% endif %}
+                <div class="d-flex flex-wrap gap-3">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-building me-2"></i>
+                        <span>{{ program.center.center_name }}</span>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-people me-2"></i>
+                        <span>{{ program.get_age_range() }}</span>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-currency-dollar me-2"></i>
+                        <span>{{ program.get_price_display() }}</span>
+                    </div>
+                    {% if program.duration_minutes %}
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-clock me-2"></i>
+                        <span>{{ program.duration_minutes }} minutes</span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-md-4 text-center">
+                {% if program.photo_url %}
+                <img src="{{ program.photo_url }}" class="img-fluid rounded shadow" alt="{{ program.name }}">
+                {% else %}
+                <div class="bg-white p-4 rounded shadow">
+                    <i class="{{ program.category.icon }} display-1" style="color: {{ program.category.color }}"></i>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row g-4">
+        <div class="col-lg-8">
+            {% if program.description %}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h4 class="mb-0">About This Program</h4>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">{{ program.description }}</p>
+                </div>
+            </div>
+            {% endif %}
+            
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h4 class="mb-0">Available Class Times</h4>
+                </div>
+                <div class="card-body">
+                    {% if schedule_availability %}
+                    <div class="row g-3">
+                        {% for item in schedule_availability %}
+                        {% set schedule = item.schedule %}
+                        <div class="col-md-6">
+                            <div class="card schedule-card h-100 position-relative">
+                                {% if item.is_full %}
+                                <span class="badge bg-danger availability-badge">Full</span>
+                                {% elif item.available_spots <= 3 %}
+                                <span class="badge bg-warning availability-badge">{{ item.available_spots }} spots left</span>
+                                {% else %}
+                                <span class="badge bg-success availability-badge">Available</span>
+                                {% endif %}
+                                
+                                <div class="card-body">
+                                    <h6 class="card-title">
+                                        <i class="bi bi-calendar-week me-2"></i>{{ schedule.get_day_name() }}
+                                    </h6>
+                                    <div class="mb-3">
+                                        <div class="d-flex align-items-center mb-2">
+                                            <i class="bi bi-clock me-2 text-muted"></i>
+                                            <span>{{ schedule.get_time_range() }}</span>
+                                        </div>
+                                        <div class="d-flex align-items-center mb-2">
+                                            <i class="bi bi-person me-2 text-muted"></i>
+                                            <span>{{ schedule.teacher.user.name }}</span>
+                                        </div>
+                                        {% if schedule.room_name %}
+                                        <div class="d-flex align-items-center mb-2">
+                                            <i class="bi bi-geo-alt me-2 text-muted"></i>
+                                            <span>{{ schedule.room_name }}</span>
+                                        </div>
+                                        {% endif %}
+                                        <div class="d-flex align-items-center">
+                                            <i class="bi bi-people me-2 text-muted"></i>
+                                            <span>{{ schedule.max_students - item.available_spots }}/{{ schedule.max_students }} enrolled</span>
+                                        </div>
+                                    </div>
+                                    
+                                    {% if not item.is_full %}
+                                    <button class="btn btn-primary w-100" onclick="enrollInClass({{ schedule.id }})">
+                                        <i class="bi bi-plus-circle me-2"></i>Enroll Now
+                                    </button>
+                                    {% else %}
+                                    <button class="btn btn-secondary w-100" disabled>
+                                        <i class="bi bi-x-circle me-2"></i>Class Full
+                                    </button>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="text-center py-4">
+                        <i class="bi bi-calendar-x display-4 text-muted mb-3"></i>
+                        <h5>No Classes Scheduled</h5>
+                        <p class="text-muted">This program doesn't have any active class schedules at the moment. Please check back later or contact the center directly.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="row g-4">
+                {% if program.requirements %}
+                <div class="col-md-6">
+                    <div class="card h-100">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="bi bi-check-square me-2"></i>Requirements
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="text-muted">{{ program.requirements }}</p>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                
+                {% if program.benefits %}
+                <div class="col-md-6">
+                    <div class="card h-100">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="bi bi-star me-2"></i>What You'll Gain
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="text-muted">{{ program.benefits }}</p>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Program Details</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="features-list">
+                        <li class="d-flex justify-content-between">
+                            <span><i class="bi bi-building me-2"></i>Center</span>
+                            <span class="fw-bold">{{ program.center.center_name }}</span>
+                        </li>
+                        <li class="d-flex justify-content-between">
+                            <span><i class="bi bi-tag me-2"></i>Category</span>
+                            <span class="fw-bold">{{ program.category.name }}</span>
+                        </li>
+                        <li class="d-flex justify-content-between">
+                            <span><i class="bi bi-people me-2"></i>Age Range</span>
+                            <span class="fw-bold">{{ program.get_age_range() }}</span>
+                        </li>
+                        <li class="d-flex justify-content-between">
+                            <span><i class="bi bi-currency-dollar me-2"></i>Price</span>
+                            <span class="fw-bold">{{ program.get_price_display() }}</span>
+                        </li>
+                        {% if program.duration_minutes %}
+                        <li class="d-flex justify-content-between">
+                            <span><i class="bi bi-clock me-2"></i>Duration</span>
+                            <span class="fw-bold">{{ program.duration_minutes }} min</span>
+                        </li>
+                        {% endif %}
+                        <li class="d-flex justify-content-between">
+                            <span><i class="bi bi-person-check me-2"></i>Max Students</span>
+                            <span class="fw-bold">{{ program.max_students }}</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">About {{ program.center.center_name }}</h5>
+                </div>
+                <div class="card-body">
+                    {% if program.center.description %}
+                    <p class="text-muted small">{{ program.center.description }}</p>
+                    {% endif %}
+                    
+                    <div class="mb-3">
+                        <div class="d-flex align-items-center mb-1">
+                            <i class="bi bi-geo-alt me-2"></i>
+                            <small>{{ program.center.address }}</small>
+                        </div>
+                        {% if program.center.user.phone %}
+                        <div class="d-flex align-items-center mb-1">
+                            <i class="bi bi-telephone me-2"></i>
+                            <small>{{ program.center.user.phone }}</small>
+                        </div>
+                        {% endif %}
+                        {% if program.center.user.email %}
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-envelope me-2"></i>
+                            <small>{{ program.center.user.email }}</small>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('public.view_center', center_id=program.center.id) }}" class="btn btn-outline-primary">
+                            <i class="bi bi-building me-2"></i>View Center Profile
+                        </a>
+                        {% if program.center.user.phone %}
+                        <a href="tel:{{ program.center.user.phone }}" class="btn btn-success">
+                            <i class="bi bi-telephone me-2"></i>Call Center
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            {% set related_programs = program.center.programs|selectattr('is_active')|selectattr('category_id', 'equalto', program.category_id)|rejectattr('id', 'equalto', program.id)|list %}
+            {% if related_programs %}
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Related Programs</h5>
+                </div>
+                <div class="card-body">
+                    {% for related in related_programs[:3] %}
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="{{ related.category.icon }} me-3" style="color: {{ related.category.color }}"></i>
+                        <div class="flex-grow-1">
+                            <h6 class="mb-1">{{ related.name }}</h6>
+                            <small class="text-muted">{{ related.get_price_display() }}</small>
+                        </div>
+                        <a href="{{ url_for('public.view_program', program_id=related.id) }}" class="btn btn-sm btn-outline-primary">View</a>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function enrollInClass(scheduleId) {
+    {% if session.user_id %}
+        {% if session.user_role == 'parent' %}
+            window.location.href = `{{ url_for('parent.dashboard') }}?enroll_schedule=${scheduleId}`;
+        {% else %}
+            alert('Only parents can enroll children in programs. Please login as a parent or create a parent account.');
+        {% endif %}
+    {% else %}
+        alert('Please login as a parent to enroll your child in this program.');
+        window.location.href = '{{ url_for('auth.login') }}';
+    {% endif %}
+}
+</script>
+{% endblock %}

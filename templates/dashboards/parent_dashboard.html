@@ -1,0 +1,1550 @@
+{% extends "base.html" %}
+
+{% block title %}Parent Dashboard - {{ super() }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+     integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+     crossorigin=""/>
+<style>
+    .child-select-card {
+        border-color: var(--bs-gray-300);
+        transition: all 0.3s ease;
+    }
+
+    .child-select-card:hover {
+        border-color: var(--bs-primary);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    .child-select-card.border-primary {
+        background: linear-gradient(135deg, var(--bs-primary) 0%, var(--bs-primary-dark, #0056b3) 100%);
+        color: white;
+        transform: scale(1.05);
+        box-shadow: 0 8px 25px rgba(var(--bs-primary-rgb), 0.3);
+    }
+
+    .child-select-card.border-primary .badge {
+        background-color: rgba(255, 255, 255, 0.2) !important;
+        color: white !important;
+    }
+
+    .program-card {
+        transition: all 0.3s ease;
+        border: 1px solid var(--bs-gray-200);
+    }
+
+    .program-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        border-color: var(--bs-primary);
+    }
+
+    .schedule-option {
+        transition: all 0.2s ease;
+    }
+
+    .schedule-option:hover .border {
+        border-color: var(--bs-primary) !important;
+        background-color: var(--bs-primary-subtle, #cfe2ff) !important;
+    }
+
+    .modal-xl {
+        max-width: 1200px;
+    }
+
+    @media (max-width: 768px) {
+        .modal-xl {
+            max-width: 100%;
+            margin: 0.5rem;
+        }
+        
+        .child-select-card {
+            margin-bottom: 1rem;
+        }
+    }
+
+    /* Loading animation */
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .fade-in {
+        animation: fadeIn 0.5s ease-out;
+    }
+
+    /* Spinner animation */
+    @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+
+    .spin {
+        animation: spin 1s linear infinite;
+}
+
+    #map {
+        height: 500px;
+        border-radius: 1rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        border: 1px solid var(--gray-200);
+    }
+    
+    .map-popup {
+        max-width: 300px;
+    }
+    
+    .map-popup h6 {
+        margin-bottom: 0.5rem;
+        color: var(--primary-600);
+    }
+    
+    .search-filters {
+        background: white;
+        border-radius: 1rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        padding: 2rem;
+        margin-bottom: 2rem;
+        border: 1px solid var(--gray-200);
+    }
+    
+    .category-filter {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        margin-top: 1rem;
+    }
+    
+    .category-chip {
+        padding: 0.5rem 1rem;
+        border: 2px solid var(--gray-200);
+        border-radius: 2rem;
+        background: white;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 0.875rem;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+    }
+    
+    .category-chip:hover {
+        border-color: var(--primary-500);
+        background: var(--primary-50);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    
+    .category-chip.active {
+        border-color: var(--primary-600);
+        background: var(--primary-600);
+        color: white;
+        box-shadow: 0 4px 6px rgba(59, 130, 246, 0.3);
+    }
+    
+    .distance-info {
+        font-size: 0.75rem;
+        color: var(--gray-500);
+        margin-top: 0.25rem;
+    }
+    
+    .child-quick-card {
+        transition: all 0.3s ease;
+        cursor: pointer;
+        border-radius: 1rem;
+        border: 2px solid var(--gray-200);
+        background: white;
+    }
+    
+    .child-quick-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        border-color: var(--primary-300);
+    }
+    
+    .program-card {
+        transition: all 0.3s ease;
+        border-left: 4px solid transparent;
+        border-radius: 1rem;
+    }
+    
+    .program-card:hover {
+        transform: translateY(-2px);
+        border-left-color: var(--primary-600);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        background-color: var(--primary-50);
+    }
+    
+    .center-card {
+        transition: all 0.3s ease;
+        border-radius: 1rem;
+        border: 1px solid var(--gray-200);
+        background: white;
+        overflow: hidden;
+    }
+    
+    .center-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        border-color: var(--primary-300);
+    }
+    
+    .hero-stats {
+        background: linear-gradient(135deg, var(--primary-600) 0%, var(--primary-800) 100%);
+        border-radius: 1rem;
+        color: white;
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+    
+    .stat-item {
+        text-align: center;
+        padding: 1rem;
+    }
+    
+    .stat-number {
+        font-size: 2rem;
+        font-weight: 800;
+        color: white;
+    }
+    
+    .stat-label {
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 0.875rem;
+        font-weight: 500;
+    }
+    
+    .welcome-card {
+        background: linear-gradient(135deg, var(--primary-600) 0%, var(--primary-800) 100%);
+        border-radius: 1rem;
+        color: white;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .welcome-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E") repeat;
+    }
+    
+    .welcome-content {
+        position: relative;
+        z-index: 1;
+    }
+    
+    .quick-action-btn {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: white;
+        border-radius: 0.75rem;
+        padding: 0.75rem 1.5rem;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        font-weight: 500;
+    }
+    
+    .quick-action-btn:hover {
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        transform: translateY(-2px);
+    }
+    
+    .children-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+    
+    .child-card {
+        background: white;
+        border-radius: 1rem;
+        padding: 1.5rem;
+        text-align: center;
+        border: 2px solid var(--gray-200);
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+    
+    .child-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        border-color: var(--primary-300);
+    }
+    
+    .child-avatar {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        margin: 0 auto 1rem;
+        background: linear-gradient(135deg, var(--primary-500), var(--primary-700));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.5rem;
+        font-weight: bold;
+    }
+    
+    .center-image {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+        border-radius: 1rem 1rem 0 0;
+    }
+    
+    .program-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.25rem 0.75rem;
+        border-radius: 1rem;
+        font-size: 0.75rem;
+        font-weight: 500;
+        margin: 0.25rem 0.25rem 0.25rem 0;
+        transition: all 0.2s ease;
+        cursor: pointer;
+    }
+    
+    .program-badge:hover {
+        transform: scale(1.05);
+    }
+    
+    .view-toggle {
+        background: white;
+        border-radius: 0.75rem;
+        padding: 0.5rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        border: 1px solid var(--gray-200);
+    }
+    
+    .view-toggle .btn {
+        border: none;
+        background: transparent;
+        color: var(--gray-600);
+        border-radius: 0.5rem;
+        padding: 0.5rem 1rem;
+        transition: all 0.2s ease;
+    }
+    
+    .view-toggle .btn.active {
+        background: var(--primary-600);
+        color: white;
+        box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
+    }
+    
+    .fade-in {
+        animation: fadeIn 0.6s ease-out;
+    }
+    
+    @keyframes fadeIn {
+        from { 
+            opacity: 0; 
+            transform: translateY(20px); 
+        }
+        to { 
+            opacity: 1; 
+            transform: translateY(0); 
+        }
+    }
+    
+    .slide-in {
+        animation: slideIn 0.5s ease-out;
+    }
+    
+    @keyframes slideIn {
+        from { 
+            opacity: 0; 
+            transform: translateX(-20px); 
+        }
+        to { 
+            opacity: 1; 
+            transform: translateX(0); 
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .search-filters {
+            padding: 1rem;
+        }
+        
+        .children-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .hero-stats {
+            padding: 1rem;
+        }
+        
+        .welcome-card {
+            padding: 1rem;
+        }
+        
+        .category-filter {
+            gap: 0.5rem;
+        }
+        
+        .category-chip {
+            padding: 0.375rem 0.75rem;
+            font-size: 0.8rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4" data-children-count="{{ children|length }}">
+
+    <div class="welcome-card fade-in">
+        <div class="welcome-content">
+            <div class="row align-items-center">
+                <div class="col-lg-8">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="bg-white bg-opacity-20 rounded-circle p-3 me-3">
+                            <i class="bi bi-house-heart fs-4"></i>
+                        </div>
+                        <div>
+                            <h1 class="h3 fw-bold mb-1">Welcome back, {{ session.user_name }}!</h1>
+                            <p class="mb-0 text-white text-opacity-90">
+                                {% if children %}
+                                    You have {{ children|length }} child{{ 'ren' if children|length != 1 else '' }} registered.
+                                {% else %}
+                                    Let's get started by adding your first child.
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex flex-wrap gap-3">
+                        {% if children %}
+                            <a href="{{ url_for('parent.manage_children') }}" class="quick-action-btn">
+                                <i class="bi bi-people me-2"></i>Manage Children
+                            </a>
+                        {% else %}
+                            <a href="{{ url_for('parent.add_child') }}" class="quick-action-btn">
+                                <i class="bi bi-person-plus me-2"></i>Add Your First Child
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-lg-4 text-lg-end">
+                    <div class="row g-3">
+                        <div class="col-4">
+                            <div class="stat-item">
+                                <div class="stat-number">{{ centers|length }}</div>
+                                <div class="stat-label">Centers</div>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="stat-item">
+                                <div class="stat-number">{{ children|length }}</div>
+                                <div class="stat-label">Children</div>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="stat-item">
+                                <div class="stat-number">
+                                    {% set active_enrollments = 0 %}
+                                    {% for child in children %}
+                                        {% for enrollment in child.enrollments %}
+                                            {% if enrollment.status == 'active' %}
+                                                {% set active_enrollments = active_enrollments + 1 %}
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% endfor %}
+                                    {{ active_enrollments }}
+                                </div>
+                                <div class="stat-label">Enrollments</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="search-filters slide-in">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold text-gray-700">
+                            <i class="bi bi-search me-2"></i>Search Centers
+                        </label>
+                        <input type="text" class="form-control" id="searchInput" 
+                               placeholder="Search by name, description, or address..."
+                               onkeyup="filterCenters()">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold text-gray-700">
+                            <i class="bi bi-geo-alt me-2"></i>Your Location (Optional)
+                        </label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="userLocationInput" 
+                                   placeholder="Enter your address for distance calculation">
+                            <button class="btn btn-outline-primary" type="button" onclick="setUserLocation()">
+                                <i class="bi bi-crosshair"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-4">
+                    <label class="form-label fw-semibold text-gray-700 mb-3">
+                        <i class="bi bi-funnel me-2"></i>Filter by Category
+                    </label>
+                    <div class="category-filter">
+                        <span class="category-chip active" data-category="" onclick="filterByCategory('')">
+                            <i class="bi bi-grid me-2"></i>All Categories
+                        </span>
+                        {% for category in categories %}
+                        <span class="category-chip" data-category="{{ category.id }}" 
+                              onclick="filterByCategory({{ category.id }})">
+                            <i class="{{ category.icon }} me-2"></i>{{ category.name }}
+                        </span>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 text-lg-end">
+                <div class="d-flex flex-column align-items-lg-end">
+                    <div class="view-toggle mb-3">
+                        <button class="btn active" onclick="showListView()">
+                            <i class="bi bi-list me-1"></i>List
+                        </button>
+                        <button class="btn" onclick="showMapView()">
+                            <i class="bi bi-map me-1"></i>Map
+                        </button>
+                    </div>
+                    <div class="badge bg-primary bg-opacity-10 text-primary px-3 py-2">
+                        <i class="bi bi-info-circle me-1"></i>
+                        <span id="centersCount">{{ centers|length }}</span> centers found
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-6" id="centersList">
+            {% if children %}
+            <div class="card border-0 shadow-soft mb-4 fade-in">
+                <div class="card-header bg-white border-0">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="fw-bold mb-0">
+                            <i class="bi bi-people-fill me-2 text-primary"></i>Your Children
+                        </h5>
+                        <div class="dropdown">
+                            <button class="btn btn-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                <i class="bi bi-plus-circle me-1"></i>Quick Actions
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end shadow-medium border-0 rounded-xl">
+                                <li><a class="dropdown-item rounded" href="{{ url_for('parent.add_child') }}">
+                                    <i class="bi bi-person-plus me-2 text-primary"></i>Add Child
+                                </a></li>
+                                <li><a class="dropdown-item rounded" href="{{ url_for('parent.manage_children') }}">
+                                    <i class="bi bi-people me-2 text-success"></i>Manage All Children
+                                </a></li>
+                                <li><a class="dropdown-item rounded" href="{{ url_for('parent.enrollments') }}">
+                                    <i class="bi bi-journal-bookmark me-2 text-info"></i>View All Enrollments
+                                </a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="children-grid">
+                        {% for child in children[:4] %}
+                        <div class="child-card" onclick="selectChildForEnrollment({{ child.id }}, '{{ child.name }}')">
+                            {% if child.photo_url %}
+                            <img src="{{ url_for('static', filename='uploads/' + child.photo_url) }}" 
+                                class="child-avatar" style="width: 60px; height: 60px; object-fit: cover; border-radius: 50%;">
+                            {% else %}
+                            <div class="child-avatar">
+                                {{ child.name[0] }}
+                            </div>
+                            {% endif %}
+                            <h6 class="fw-bold mb-1">{{ child.name }}</h6>
+                            <p class="text-muted small mb-2">{{ child.get_age_display() if child.calculate_age() else 'Age not set' }}</p>
+                            <div class="badge bg-success bg-opacity-10 text-success mb-2">
+                                {{ child.enrollments|selectattr('status', 'equalto', 'active')|list|length }} Active Classes
+                            </div>
+                            <p class="text-muted small">Click to enroll in programs</p>
+                        </div>
+                        {% endfor %}
+                        
+                        {% if children|length > 4 %}
+                        <div class="child-card" style="background: var(--gray-50);">
+                            <div class="child-avatar" style="background: var(--gray-300); color: var(--gray-600);">
+                                <i class="bi bi-plus"></i>
+                            </div>
+                            <h6 class="fw-bold mb-1">+{{ children|length - 4 }} More</h6>
+                            <p class="text-muted small mb-2">Additional children</p>
+                            <a href="{{ url_for('parent.manage_children') }}" class="btn btn-outline-primary btn-sm">
+                                View All
+                            </a>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            <div id="centersContainer">
+            {% if centers %}
+                {% for center in centers %}
+                <div class="center-card mb-4 fade-in" 
+                     data-id="{{ center.id }}"
+                     data-name="{{ center.center_name|lower }}" 
+                     data-address="{{ center.address|lower }}"
+                     data-lat="{{ center.latitude or '' }}"
+                     data-lng="{{ center.longitude or '' }}">
+                    
+                    <div class="row g-0">
+                        <div class="col-md-4">
+                            {% if center.photo_url %}
+                                <img src="{{ center.photo_url }}" class="center-image" alt="{{ center.center_name }}">
+                            {% else %}
+                                <div class="center-image bg-gradient d-flex align-items-center justify-content-center">
+                                    <i class="bi bi-building display-4 text-primary"></i>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-8">
+                            <div class="card-body p-4">
+                                <div class="d-flex justify-content-between align-items-start mb-3">
+                                    <div>
+                                        <h5 class="fw-bold mb-1">{{ center.center_name }}</h5>
+                                        <p class="text-muted small mb-0">
+                                            <i class="bi bi-geo-alt me-1"></i>{{ center.address }}
+                                        </p>
+                                    </div>
+                                    <div class="text-end">
+                                        <div class="badge bg-primary bg-opacity-10 text-primary">
+                                            {{ center.programs|length }} Programs
+                                        </div>
+                                        <div class="distance-info" id="distance-{{ center.id }}"></div>
+                                    </div>
+                                </div>
+                                
+                                <p class="text-muted mb-3">{{ center.description or "Quality education programs for children and teenagers." }}</p>
+                                
+                                {% if center.programs %}
+                                <div class="mb-3">
+                                    <h6 class="small fw-bold text-gray-700 mb-2">Featured Programs:</h6>
+                                    <div class="d-flex flex-wrap">
+                                        {% for program in center.programs[:3] %}
+                                        <span class="program-badge" 
+                                              style="background-color: {{ program.category.color }}15; color: {{ program.category.color }}; border: 1px solid {{ program.category.color }}30;"
+                                              onclick="showProgramModal({{ program.id }}, {{ center.id }})">
+                                            <i class="{{ program.category.icon }} me-1"></i>{{ program.name }}
+                                        </span>
+                                        {% endfor %}
+                                        {% if center.programs|length > 3 %}
+                                        <span class="program-badge" style="background: var(--gray-100); color: var(--gray-600);">
+                                            +{{ center.programs|length - 3 }} more
+                                        </span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                {% endif %}
+                                
+                                <div class="d-flex align-items-center text-muted small mb-3">
+                                    {% if center.user.phone %}
+                                    <div class="me-3">
+                                        <i class="bi bi-telephone me-1"></i>{{ center.user.phone }}
+                                    </div>
+                                    {% endif %}
+                                    {% if center.user.email %}
+                                    <div>
+                                        <i class="bi bi-envelope me-1"></i>{{ center.user.email }}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="btn-group">
+                                        <a href="{{ url_for('public.view_center', center_id=center.id) }}" class="btn btn-outline-primary btn-sm">
+                                            <i class="bi bi-eye me-1"></i>View Details
+                                        </a>
+                                        {% if center.latitude and center.longitude %}
+                                        <button class="btn btn-outline-secondary btn-sm" onclick="focusOnCenter({{ center.latitude }}, {{ center.longitude }})">
+                                            <i class="bi bi-geo-alt"></i>
+                                        </button>
+                                        {% endif %}
+                                        {% if children %}
+                                        <button class="btn btn-primary btn-sm" onclick="showCenterPrograms({{ center.id }}, '{{ center.center_name }}')">
+                                            <i class="bi bi-plus-circle me-1"></i>Enroll
+                                        </button>
+                                        {% endif %}
+                                    </div>
+                                    <div class="d-flex gap-2">
+                                        <div class="badge bg-success bg-opacity-10 text-success">
+                                            <i class="bi bi-people me-1"></i>{{ center.teachers|length }} Teachers
+                                        </div>
+                                        <div class="badge bg-info bg-opacity-10 text-info">
+                                            <i class="bi bi-star me-1"></i>4.8 Rating
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="card border-0 shadow-soft text-center p-5">
+                    <i class="bi bi-search display-1 text-muted mb-3"></i>
+                    <h4 class="fw-bold text-gray-800 mb-2">No Centers Found</h4>
+                    <p class="text-muted">No education centers match your current filters. Try adjusting your search criteria.</p>
+                </div>
+            {% endif %}
+            </div>
+        </div>
+        
+        <div class="col-lg-6" id="mapPanel">
+            <div class="card border-0 shadow-soft fade-in">
+                <div class="card-header bg-white border-0">
+                    <h5 class="fw-bold mb-0">
+                        <i class="bi bi-geo-alt-fill me-2 text-primary"></i>Education Centers in Astana
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    <div id="map"></div>
+                </div>
+                <div class="card-footer bg-gray-50 border-0">
+                    <div class="row text-center">
+                        <div class="col-4">
+                            <div class="fw-bold text-primary">{{ map_centers|length }}</div>
+                            <small class="text-muted">Centers on Map</small>
+                        </div>
+                        <div class="col-4">
+                            <div class="fw-bold text-success">{{ children|length }}</div>
+                            <small class="text-muted">Your Children</small>
+                        </div>
+                        <div class="col-4">
+                            <div class="fw-bold text-info" id="selectedCategory">All</div>
+                            <small class="text-muted">Category Filter</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="enrollmentModal" tabindex="-1" aria-labelledby="enrollmentModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content border-0 rounded-xl">
+            <div class="modal-header border-0 bg-primary text-white rounded-top">
+                <h5 class="modal-title fw-bold" id="enrollmentModalLabel">
+                    <i class="bi bi-journal-plus me-2"></i>Enroll Child in Program
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <!-- Child Selection Section -->
+                <div id="childSelectionSection" class="mb-4">
+                    <h6 class="fw-bold text-gray-700 mb-3">
+                        <i class="bi bi-person me-2"></i>Select Child:
+                    </h6>
+                    <div class="row g-3" id="childSelection">
+                        {% for child in children %}
+                        <div class="col-md-3">
+                            <div class="card child-select-card border-2 h-100" 
+                                 data-child-id="{{ child.id }}" 
+                                 onclick="selectChild({{ child.id }}, '{{ child.name|e }}')"
+                                 style="cursor: pointer; transition: all 0.3s ease;">
+                                <div class="card-body text-center p-3">
+                                    {% if child.photo_url %}
+                                    <img src="{{ url_for('static', filename='uploads/' + child.photo_url) }}" 
+                                         class="rounded-circle mb-2" 
+                                         style="width: 50px; height: 50px; object-fit: cover;"
+                                         alt="{{ child.name }}">
+                                    {% else %}
+                                    <div class="bg-primary rounded-circle mx-auto mb-2 d-flex align-items-center justify-content-center" 
+                                         style="width: 50px; height: 50px;">
+                                        <span class="text-white fw-bold">{{ child.name[0] }}</span>
+                                    </div>
+                                    {% endif %}
+                                    <h6 class="fw-bold mb-1">{{ child.name }}</h6>
+                                    <small class="text-muted">{{ child.get_age_display() }}</small>
+                                    {% set active_enrollments = child.enrollments|selectattr('status', 'equalto', 'active')|list %}
+                                    {% if active_enrollments %}
+                                    <div class="badge bg-success bg-opacity-10 text-success mt-1">
+                                        {{ active_enrollments|length }} active
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    
+                    {% if not children %}
+                    <div class="text-center py-4">
+                        <i class="bi bi-person-plus display-4 text-muted mb-3"></i>
+                        <h5>No Children Added</h5>
+                        <p class="text-muted mb-3">Add children to your family first to enroll them in programs.</p>
+                        <a href="{{ url_for('parent.add_child') }}" class="btn btn-primary">
+                            <i class="bi bi-person-plus me-2"></i>Add Child
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Program Selection Section -->
+                <div id="programSelectionSection" style="display: none;">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="fw-bold text-gray-700 mb-0">
+                            <i class="bi bi-mortarboard me-2"></i>Available Programs for 
+                            <span id="selectedChildName" class="text-primary"></span>:
+                        </h6>
+                        <button class="btn btn-outline-secondary btn-sm" onclick="resetChildSelection()">
+                            <i class="bi bi-arrow-left me-1"></i>Change Child
+                        </button>
+                    </div>
+                    
+                    <div id="programsContainer">
+                        <!-- Programs will be loaded here via JavaScript -->
+                    </div>
+                </div>
+                
+                <!-- No Children Message -->
+                {% if not children %}
+                <div class="text-center py-5">
+                    <i class="bi bi-people display-1 text-muted mb-4"></i>
+                    <h4>Add Your First Child</h4>
+                    <p class="text-muted mb-4">
+                        Before you can enroll in programs, you need to add your children to your family profile.
+                    </p>
+                    <a href="{{ url_for('parent.add_child') }}" class="btn btn-primary btn-lg">
+                        <i class="bi bi-person-plus me-2"></i>Add Child Now
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+            
+            {% if children %}
+            <div class="modal-footer border-0 bg-gray-50">
+                <div class="d-flex justify-content-between align-items-center w-100">
+                    <small class="text-muted">
+                        <i class="bi bi-info-circle me-1"></i>
+                        Enrollments require center approval
+                    </small>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-lg me-2"></i>Close
+                    </button>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="programModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content border-0 rounded-xl">
+            <div class="modal-header border-0">
+                <h5 class="modal-title fw-bold" id="programModalTitle"></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="programModalBody">
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+     crossorigin=""></script>
+
+<script>
+let map;
+let markers = [];
+let userMarker = null;
+let userLocation = null;
+let centersData = [];
+let selectedCategory = '';
+let selectedChild = null;
+
+function initializeMap() {
+    map = L.map('map').setView([51.1605, 71.4704], 11);
+    
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 18,
+        attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+    
+    loadCentersData();
+}
+
+function loadCentersData() {
+    fetch('/api/centers')
+        .then(response => response.json())
+        .then(data => {
+            centersData = data;
+            updateMapMarkers();
+        })
+        .catch(error => {
+            console.error('Error loading centers:', error);
+        });
+}
+
+function updateMapMarkers() {
+    markers.forEach(marker => map.removeLayer(marker));
+    markers = [];
+    
+    let filteredCenters = centersData;
+    
+    if (selectedCategory) {
+        filteredCenters = centersData.filter(center => 
+            center.programs.some(program => program.category === selectedCategory)
+        );
+    }
+    
+    filteredCenters.forEach(center => {
+        const marker = L.marker([center.latitude, center.longitude])
+            .addTo(map);
+        
+        const popupContent = `
+            <div class="map-popup">
+                <h6 class="fw-bold text-primary">${center.name}</h6>
+                <p class="small mb-2 text-muted">${center.description || 'Quality education center'}</p>
+                <p class="small mb-2 text-muted">
+                    <i class="bi bi-geo-alt me-1"></i>${center.address}
+                </p>
+                <div class="mb-3">
+                    ${center.programs.slice(0, 2).map(program => 
+                        `<span class="badge me-1" style="background-color: ${program.category_color}20; color: ${program.category_color}; border: 1px solid ${program.category_color}30;">
+                            <i class="${program.category_icon} me-1"></i>${program.name}
+                        </span>`
+                    ).join('')}
+                </div>
+                <div class="d-flex justify-content-between align-items-center">
+                    <small class="text-muted">
+                        ${center.programs_count} Programs • ${center.teachers_count} Teachers
+                    </small>
+                    <div class="btn-group btn-group-sm">
+                        <a href="/center/${center.id}" class="btn btn-outline-primary btn-sm">View</a>
+                        {% if children %}
+                        <button class="btn btn-primary btn-sm" onclick="showCenterPrograms(${center.id}, '${center.name}')">Enroll</button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        marker.bindPopup(popupContent);
+        markers.push(marker);
+    });
+    
+    document.getElementById('centersCount').textContent = filteredCenters.length;
+}
+
+function selectChildForEnrollment(childId, childName) {
+    selectedChild = { id: childId, name: childName };
+    showEnrollmentModal();
+}
+
+function showEnrollmentModal() {
+    const childCards = document.querySelectorAll('#childSelection .child-select-card');
+    
+    if (childCards.length === 0) {
+        showNotification('Please add children to your family first before enrolling in programs.', 'info');
+        setTimeout(() => {
+            window.location.href = '/parent/children/add';
+        }, 2000);
+        return;
+    }
+    
+    // Show modal
+    const modal = new bootstrap.Modal(document.getElementById('enrollmentModal'));
+    modal.show();
+}
+
+function selectChild(childId, childName) {
+    // Update UI to show selected child
+    document.querySelectorAll('.child-select-card').forEach(card => {
+        card.classList.remove('border-primary', 'bg-primary', 'text-white');
+        card.classList.add('border-gray-200');
+    });
+    
+    const selectedCard = document.querySelector(`[data-child-id="${childId}"]`);
+    if (selectedCard) {
+        selectedCard.classList.remove('border-gray-200');
+        selectedCard.classList.add('border-primary', 'bg-primary', 'text-white');
+    }
+    
+    selectedChild = { id: childId, name: childName };
+    document.getElementById('selectedChildName').textContent = childName;
+    
+    // Show program selection section
+    const programSection = document.getElementById('programSelectionSection');
+    programSection.style.display = 'block';
+    programSection.classList.add('fade-in');
+    
+    // Load available programs
+    loadAvailablePrograms(childId);
+} 
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+
+function showNotification(message, type) {
+    const alertClass = type === 'error' ? 'danger' : type;
+    const iconClass = type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-triangle' : 'info-circle';
+    
+    // Remove any existing notifications
+    const existingAlerts = document.querySelectorAll('.notification-alert');
+    existingAlerts.forEach(alert => alert.remove());
+    
+    const alert = document.createElement('div');
+    alert.className = `alert alert-${alertClass} alert-dismissible fade show position-fixed top-0 start-50 translate-middle-x mt-3 notification-alert`;
+    alert.style.zIndex = '9999';
+    alert.style.maxWidth = '500px';
+    alert.innerHTML = `
+        <i class="bi bi-${iconClass} me-2"></i>
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    document.body.appendChild(alert);
+    
+    // Auto-remove after 5 seconds
+    setTimeout(() => {
+        if (alert.parentNode) {
+            alert.remove();
+        }
+    }, 5000);
+}
+
+// CSS for spinner animation
+if (!document.querySelector('#enrollment-styles')) {
+    const style = document.createElement('style');
+    style.id = 'enrollment-styles';
+    style.textContent = `
+        .spin {
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        .program-card {
+            transition: all 0.3s ease;
+        }
+        
+        .program-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .schedule-option {
+            transition: all 0.2s ease;
+        }
+        
+        .schedule-option:hover {
+            background-color: var(--bs-primary-100, #e3f2fd) !important;
+        }
+        
+        .notification-alert {
+            animation: slideDown 0.3s ease-out;
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -100%);
+            }
+            to {
+                opacity: 1;
+                transform: translate(-50%, 0);
+            }
+        }
+    `;
+    document.head.appendChild(style);
+}
+
+function loadAvailablePrograms(childId) {
+    const container = document.getElementById('programsContainer');
+    
+    container.innerHTML = `
+        <div class="text-center py-4">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-2 text-muted">Loading amazing programs...</p>
+        </div>
+    `;
+    
+    fetch(`/api/child/${childId}/available-programs`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.error) {
+                throw new Error(data.error);
+            }
+            
+            if (data.programs && data.programs.length > 0) {
+                let html = '<div class="row g-4">';
+                
+                data.programs.forEach(program => {
+                    html += `
+                        <div class="col-md-6">
+                            <div class="card program-card h-100 border-0 shadow-soft">
+                                <div class="card-body p-4">
+                                    <div class="d-flex align-items-center mb-3">
+                                        <div class="rounded-circle p-3 me-3" style="background-color: ${program.category_color}20;">
+                                            <i class="${program.category_icon} text-primary"></i>
+                                        </div>
+                                        <div>
+                                            <h6 class="fw-bold mb-1">${escapeHtml(program.name)}</h6>
+                                            <small class="text-muted">${escapeHtml(program.center_name)}</small>
+                                        </div>
+                                    </div>
+                                    
+                                    ${program.short_description ? `<p class="text-muted small mb-3">${escapeHtml(program.short_description)}</p>` : ''}
+                                    
+                                    <div class="row g-2 mb-3">
+                                        <div class="col-6">
+                                            <div class="bg-gray-50 rounded p-2 text-center">
+                                                <i class="bi bi-people text-muted"></i>
+                                                <div class="small fw-semibold">${escapeHtml(program.age_range)}</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="bg-gray-50 rounded p-2 text-center">
+                                                <i class="bi bi-currency-dollar text-muted"></i>
+                                                <div class="small fw-semibold">${escapeHtml(program.price_display)}</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <h6 class="small fw-bold text-gray-700 mb-2">Available Times:</h6>
+                                        ${program.schedules.map(schedule => `
+                                            <div class="schedule-option mb-2">
+                                                <div class="d-flex justify-content-between align-items-center p-3 bg-gray-50 rounded-xl border">
+                                                    <div>
+                                                        <div class="fw-semibold">${escapeHtml(schedule.day_name)} ${escapeHtml(schedule.time_range)}</div>
+                                                        <small class="text-muted">
+                                                            <i class="bi bi-person me-1"></i>${escapeHtml(schedule.teacher_name)}
+                                                            ${schedule.room_name ? `<br><i class="bi bi-geo-alt me-1"></i>${escapeHtml(schedule.room_name)}` : ''}
+                                                        </small>
+                                                    </div>
+                                                    <div class="text-end">
+                                                        <div class="badge bg-success bg-opacity-10 text-success mb-1">
+                                                            ${schedule.available_spots}/${schedule.max_students} spots
+                                                        </div>
+                                                        <br><button class="btn btn-primary btn-sm" 
+                                                                  onclick="enrollInSchedule(${childId}, ${schedule.id}, '${escapeHtml(program.name)}', '${escapeHtml(schedule.day_name)} ${escapeHtml(schedule.time_range)}')"
+                                                                  ${schedule.available_spots <= 0 ? 'disabled' : ''}>
+                                                            <i class="bi bi-check-circle me-1"></i>
+                                                            ${schedule.available_spots <= 0 ? 'Full' : 'Enroll'}
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+                container.innerHTML = html;
+            } else {
+                container.innerHTML = `
+                    <div class="text-center py-5">
+                        <i class="bi bi-info-circle display-4 text-muted mb-3"></i>
+                        <h5 class="fw-bold">No Available Programs</h5>
+                        <p class="text-muted">No programs are currently available for this child that match their age or aren't already enrolled.</p>
+                        <a href="/parent/dashboard" class="btn btn-outline-primary rounded-pill">Browse All Centers</a>
+                    </div>
+                `;
+            }
+        })
+        .catch(error => {
+            console.error('Error loading programs:', error);
+            container.innerHTML = `
+                <div class="alert alert-danger border-0 rounded-xl">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    Error loading programs: ${error.message || 'Please try again.'}
+                </div>
+            `;
+        });
+}
+
+function enrollInSchedule(childId, scheduleId, programName, scheduleInfo) {
+    if (!confirm(`Enroll ${selectedChild.name} in ${programName} (${scheduleInfo})?`)) {
+        return;
+    }
+    
+    const btn = event.target;
+    const originalText = btn.innerHTML;
+    
+    btn.innerHTML = '<i class="bi bi-arrow-clockwise spin me-1"></i>Enrolling...';
+    btn.disabled = true;
+    
+    fetch('/api/enroll', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: JSON.stringify({
+            child_id: childId,
+            schedule_id: scheduleId
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.success) {
+            showNotification(data.message, 'success');
+            
+            const modal = bootstrap.Modal.getInstance(document.getElementById('enrollmentModal'));
+            if (modal) {
+                modal.hide();
+            }
+            
+            setTimeout(() => {
+                window.location.reload();
+            }, 1500);
+        } else {
+            throw new Error(data.error || 'Enrollment failed');
+        }
+    })
+    .catch(error => {
+        console.error('Enrollment error:', error);
+        showNotification(error.message || 'Error processing enrollment. Please try again.', 'error');
+        
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+    });
+}
+
+function getProgramColorClass(hexColor) {
+    const colorMap = {
+        '#3b82f6': 'primary',
+        '#10b981': 'success',
+        '#f59e0b': 'warning',
+        '#ef4444': 'danger',
+        '#06b6d4': 'info'
+    };
+    return colorMap[hexColor] || 'primary';
+}
+
+function showNotification(message, type) {
+    const alertClass = type === 'error' ? 'danger' : type;
+    const iconClass = type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-triangle' : 'info-circle';
+    
+    const alert = document.createElement('div');
+    alert.className = `alert alert-${alertClass} alert-dismissible fade show position-fixed top-0 start-50 translate-middle-x mt-3`;
+    alert.style.zIndex = '9999';
+    alert.innerHTML = `
+        <i class="bi bi-${iconClass} me-2"></i>
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    document.body.appendChild(alert);
+    
+    setTimeout(() => {
+        if (alert.parentNode) {
+            alert.remove();
+        }
+    }, 5000);
+}
+
+function filterCenters() {
+    const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+    const centerCards = document.querySelectorAll('.center-card');
+    let visibleCount = 0;
+    
+    centerCards.forEach(card => {
+        const name = card.getAttribute('data-name');
+        const address = card.getAttribute('data-address');
+        
+        const isVisible = name.includes(searchTerm) || address.includes(searchTerm);
+        card.style.display = isVisible ? 'block' : 'none';
+        
+        if (isVisible) visibleCount++;
+    });
+    
+    document.getElementById('centersCount').textContent = visibleCount;
+}
+
+function filterByCategory(categoryId) {
+    selectedCategory = categoryId;
+    
+    document.querySelectorAll('.category-chip').forEach(chip => {
+        chip.classList.remove('active');
+    });
+    document.querySelector(`[data-category="${categoryId}"]`).classList.add('active');
+    
+    updateMapMarkers();
+    
+    const categoryName = categoryId ? 
+        document.querySelector(`[data-category="${categoryId}"]`).textContent.trim() : 
+        'All';
+    document.getElementById('selectedCategory').textContent = categoryName;
+}
+
+function setUserLocation() {
+    const address = document.getElementById('userLocationInput').value;
+    if (!address) return;
+    
+    const button = event.target;
+    button.innerHTML = '<i class="bi bi-arrow-clockwise spin"></i>';
+    button.disabled = true;
+    
+    fetch(`/api/geocode?address=${encodeURIComponent(address)}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                userLocation = [data.latitude, data.longitude];
+                
+                if (userMarker) {
+                    map.removeLayer(userMarker);
+                }
+                
+                userMarker = L.marker(userLocation, {
+                    icon: L.icon({
+                        iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png',
+                        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+                        iconSize: [25, 41],
+                        iconAnchor: [12, 41],
+                        popupAnchor: [1, -34],
+                        shadowSize: [41, 41]
+                    })
+                }).addTo(map);
+                
+                userMarker.bindPopup('<div class="text-center"><b>Your Location</b><br><small class="text-muted">Distance calculations are based from here</small></div>').openPopup();
+                
+                updateDistances();
+                
+                map.setView(userLocation, 13);
+                
+                showNotification('Location set successfully!', 'success');
+            } else {
+                showNotification('Could not find the address. Please try a more specific address in Astana.', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Geocoding error:', error);
+            showNotification('Error finding location. Please try again.', 'error');
+        })
+        .finally(() => {
+            button.innerHTML = '<i class="bi bi-crosshair"></i>';
+            button.disabled = false;
+        });
+}
+
+function updateDistances() {
+    if (!userLocation) return;
+    
+    centersData.forEach(center => {
+        const distanceElement = document.getElementById(`distance-${center.id}`);
+        if (distanceElement) {
+            fetch(`/api/distance?lat1=${userLocation[0]}&lon1=${userLocation[1]}&lat2=${center.latitude}&lon2=${center.longitude}`)
+                .then(response => response.json())
+                .then(data => {
+                    distanceElement.innerHTML = `<i class="bi bi-geo me-1 text-primary"></i>${data.distance_text}`;
+                })
+                .catch(error => console.error('Distance calculation error:', error));
+        }
+    });
+}
+
+function focusOnCenter(lat, lng) {
+    map.setView([lat, lng], 15);
+    
+    markers.forEach(marker => {
+        const markerPos = marker.getLatLng();
+        if (Math.abs(markerPos.lat - lat) < 0.001 && Math.abs(markerPos.lng - lng) < 0.001) {
+            marker.openPopup();
+        }
+    });
+}
+
+function showListView() {
+    document.getElementById('centersList').classList.remove('d-none');
+    document.getElementById('mapPanel').classList.add('d-none');
+    
+    document.querySelectorAll('.view-toggle .btn').forEach(btn => btn.classList.remove('active'));
+    event.target.classList.add('active');
+}
+
+function showMapView() {
+    document.getElementById('centersList').classList.add('d-none');
+    document.getElementById('mapPanel').classList.remove('d-none');
+    
+    document.querySelectorAll('.view-toggle .btn').forEach(btn => btn.classList.remove('active'));
+    event.target.classList.add('active');
+    
+    setTimeout(() => {
+        map.invalidateSize();
+    }, 100);
+}
+
+function showCenterPrograms(centerId, centerName) {
+    {% if children %}
+
+    {% if children|length == 1 %}
+    selectedChild = { id: {{ children[0].id }}, name: '{{ children[0].name }}' };
+    document.getElementById('selectedChildName').textContent = '{{ children[0].name }}';
+    document.getElementById('childSelectionSection').style.display = 'none';
+    document.getElementById('programSelectionSection').style.display = 'block';
+    loadAvailablePrograms({{ children[0].id }});
+    {% endif %}
+    
+    showEnrollmentModal();
+    {% else %}
+    showNotification('Please add children to your family first.', 'info');
+    setTimeout(() => {
+        window.location.href = '{{ url_for('parent.add_child') }}';
+    }, 2000);
+    {% endif %}
+}
+
+function showProgramModal(programId, centerId) {
+    fetch(`/api/program/${programId}/details`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById('programModalTitle').textContent = data.program.name;
+                document.getElementById('programModalBody').innerHTML = data.html;
+                new bootstrap.Modal(document.getElementById('programModal')).show();
+            }
+        })
+        .catch(error => {
+            console.error('Error loading program details:', error);
+        });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const childCards = document.querySelectorAll('.child-select-card');
+    if (childCards.length === 1) {
+        window.autoSelectSingleChild = function() {
+            const card = childCards[0];
+            const childId = parseInt(card.dataset.childId);
+            const childName = card.querySelector('h6').textContent.trim();
+            selectChild(childId, childName);
+        };
+    }
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    initializeMap();
+    
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+    
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('fade-in');
+            }
+        });
+    }, observerOptions);
+    
+    document.querySelectorAll('.center-card, .child-card').forEach(el => {
+        observer.observe(el);
+    });
+    
+    const urlParams = new URLSearchParams(window.location.search);
+    const enrollScheduleId = urlParams.get('enroll_schedule');
+    if (enrollScheduleId) {
+        setTimeout(() => {
+            showEnrollmentModal();
+        }, 1000);
+    }
+});
+
+document.getElementById('enrollmentModal').addEventListener('show.bs.modal', function() {
+    resetChildSelection();
+    
+    if (window.autoSelectSingleChild) {
+        setTimeout(window.autoSelectSingleChild, 100);
+    }
+});
+
+document.getElementById('enrollmentModal').addEventListener('hidden.bs.modal', function() {
+    resetChildSelection();
+});
+
+document.querySelectorAll('.child-select-card').forEach(card => {
+    card.addEventListener('mouseenter', function() {
+        if (!this.classList.contains('border-primary')) {
+            this.style.transform = 'translateY(-2px)';
+            this.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+        }
+    });
+    
+    card.addEventListener('mouseleave', function() {
+        if (!this.classList.contains('border-primary')) {
+            this.style.transform = 'translateY(0)';
+            this.style.boxShadow = '';
+        }
+    });
+});
+
+
+function resetChildSelection() {
+    selectedChild = null;
+    
+    document.querySelectorAll('.child-select-card').forEach(card => {
+        card.classList.remove('border-primary', 'bg-primary', 'text-white');
+        card.classList.add('border-gray-200');
+    });
+    
+    document.getElementById('programSelectionSection').style.display = 'none';
+    document.getElementById('programsContainer').innerHTML = '';
+    
+    document.getElementById('selectedChildName').textContent = '';
+}
+
+const style = document.createElement('style');
+style.textContent = `
+    .spin {
+        animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+`;
+document.head.appendChild(style);
+</script>
+{% endblock %}

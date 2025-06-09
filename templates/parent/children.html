@@ -1,0 +1,315 @@
+{% extends "base.html" %}
+
+{% block title %}My Children - {{ super() }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="bi bi-people-fill me-2"></i>My Children</h2>
+        <a href="{{ url_for('parent.add_child') }}" class="btn btn-primary">
+            <i class="bi bi-person-plus me-2"></i>Add Child
+        </a>
+    </div>
+    
+    {% if children %}
+    <div class="row g-4">
+        {% for child in children %}
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100 child-card">
+                <div class="card-body text-center">
+                    {% if child.photo_url %}
+                    <img src="{{ url_for('static', filename='uploads/' + child.photo_url) }}" 
+                         class="rounded-circle mb-3" style="width: 80px; height: 80px; object-fit: cover;">
+                    {% else %}
+                    <div class="bg-primary rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" 
+                         style="width: 80px; height: 80px;">
+                        <i class="bi bi-person text-white display-6"></i>
+                    </div>
+                    {% endif %}
+                    
+                    <h5 class="card-title">{{ child.name }}</h5>
+                    
+                    <div class="mb-3">
+                        {% if child.calculate_age() %}
+                        <p class="text-muted mb-1">
+                            <i class="bi bi-calendar me-1"></i>{{ child.calculate_age() }} years old
+                        </p>
+                        {% endif %}
+                        
+                        {% if child.grade %}
+                        <p class="text-muted mb-1">
+                            <i class="bi bi-mortarboard me-1"></i>{{ child.grade }}
+                        </p>
+                        {% endif %}
+                        
+                        <p class="text-muted mb-1">
+                            <i class="bi bi-journal-bookmark me-1"></i>
+                            {{ child.enrollments|selectattr('status', 'equalto', 'active')|list|length }} Active Classes
+                        </p>
+                    </div>
+                    
+                    {% set active_enrollments = child.enrollments|selectattr('status', 'equalto', 'active')|list %}
+                    {% if active_enrollments %}
+                    <div class="mb-3">
+                        <h6 class="small text-muted mb-2">Current Classes:</h6>
+                        {% for enrollment in active_enrollments[:2] %}
+                        <div class="badge bg-light text-dark d-block mb-1 text-start">
+                            <i class="{{ enrollment.schedule.program.category.icon }} me-1"></i>
+                            {{ enrollment.schedule.program.name }}
+                            <br><small>{{ enrollment.schedule.get_day_name() }} {{ enrollment.schedule.get_time_range() }}</small>
+                        </div>
+                        {% endfor %}
+                        {% if active_enrollments|length > 2 %}
+                        <small class="text-muted">+{{ active_enrollments|length - 2 }} more</small>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                    
+                    {% if child.notes %}
+                    <div class="alert alert-info">
+                        <small>{{ child.notes }}</small>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <div class="card-footer">
+                    <div class="btn-group w-100">
+                        <a href="{{ url_for('parent.edit_child', child_id=child.id) }}" 
+                           class="btn btn-outline-primary btn-sm">
+                            <i class="bi bi-pencil"></i> Edit
+                        </a>
+                        <button class="btn btn-outline-success btn-sm" 
+                                onclick="showEnrollModal({{ child.id }}, '{{ child.name }}')">
+                            <i class="bi bi-plus-circle"></i> Enroll
+                        </button>
+                        <button class="btn btn-outline-danger btn-sm" 
+                                onclick="confirmDelete({{ child.id }}, '{{ child.name }}')">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    
+    {% else %}
+    <!-- Empty State -->
+    <div class="text-center py-5">
+        <i class="bi bi-people display-1 text-muted mb-4"></i>
+        <h3>No Children Added Yet</h3>
+        <p class="text-muted mb-4">Add your children to start exploring education programs.</p>
+        <a href="{{ url_for('parent.add_child') }}" class="btn btn-primary btn-lg">
+            <i class="bi bi-person-plus me-2"></i>Add Your First Child
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+<div class="modal fade" id="enrollModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-journal-plus me-2"></i>Enroll <span id="childName"></span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="enrollmentOptions">
+                    <div class="text-center">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading programs...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirm Deletion</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to remove <strong><span id="deleteChildName"></span></strong> from your family? 
+                <br><br>
+                <div class="alert alert-warning">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    This will also cancel any active class enrollments.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="deleteForm" method="POST" style="display: inline;">
+                    <button type="submit" class="btn btn-danger">Remove Child</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+function showEnrollModal(childId, childName) {
+    document.getElementById('childName').textContent = childName;
+    
+    fetch(`/api/child/${childId}/available-programs`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            let html = '';
+            if (data.programs && data.programs.length > 0) {
+                html = '<div class="row g-3">';
+                data.programs.forEach(program => {
+                    if (program.schedules && program.schedules.length > 0) {
+                        const schedule = program.schedules[0];
+                        html += `
+                            <div class="col-md-6">
+                                <div class="card h-100">
+                                    <div class="card-body">
+                                        <div class="d-flex align-items-center mb-3">
+                                            <i class="${program.category_icon || 'bi-book'} display-6 me-3" 
+                                               style="color: ${program.category_color || '#007bff'}"></i>
+                                            <div>
+                                                <h6 class="mb-1">${program.name}</h6>
+                                                <small class="text-muted">${program.center_name}</small>
+                                            </div>
+                                        </div>
+                                        ${program.short_description ? `<p class="small">${program.short_description}</p>` : ''}
+                                        <div class="mb-3">
+                                            <small class="text-muted">
+                                                <i class="bi bi-calendar me-1"></i>${schedule.day_name}<br>
+                                                <i class="bi bi-clock me-1"></i>${schedule.time_range}<br>
+                                                <i class="bi bi-currency-dollar me-1"></i>${program.price_display}<br>
+                                                <i class="bi bi-people me-1"></i>${schedule.available_spots} spots left
+                                            </small>
+                                        </div>
+                                        
+                                        <!-- FIXED: Show all available schedules for this program -->
+                                        ${program.schedules.length > 1 ? `
+                                            <div class="mb-3">
+                                                <label class="form-label">Choose Schedule:</label>
+                                                <select class="form-select" id="schedule_${program.id}">
+                                                    ${program.schedules.map(sched => 
+                                                        `<option value="${sched.id}">
+                                                            ${sched.day_name} ${sched.time_range} (${sched.available_spots} spots)
+                                                        </option>`
+                                                    ).join('')}
+                                                </select>
+                                            </div>
+                                        ` : ''}
+                                        
+                                        <button class="btn btn-primary w-100" 
+                                                onclick="enrollChild(${childId}, ${program.id}, ${program.schedules.length > 1})">
+                                            <i class="bi bi-check-circle me-2"></i>Enroll Now
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }
+                });
+                html += '</div>';
+            } else {
+                html = `
+                    <div class="text-center py-4">
+                        <i class="bi bi-info-circle display-4 text-muted mb-3"></i>
+                        <h5>No Available Programs</h5>
+                        <p class="text-muted">No programs are currently available for this child that match their age or aren't already enrolled.</p>
+                        <a href="/parent/dashboard" class="btn btn-outline-primary">Browse All Centers</a>
+                    </div>
+                `;
+            }
+            document.getElementById('enrollmentOptions').innerHTML = html;
+        })
+        .catch(error => {
+            console.error('Error loading programs:', error);
+            document.getElementById('enrollmentOptions').innerHTML = `
+                <div class="alert alert-danger">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    Error loading programs: ${error.message}. Please try again.
+                </div>
+            `;
+        });
+    
+    new bootstrap.Modal(document.getElementById('enrollModal')).show();
+}
+
+function enrollChild(childId, programId, hasMultipleSchedules = false) {
+    let scheduleId;
+    
+    if (hasMultipleSchedules) {
+        const selectElement = document.getElementById(`schedule_${programId}`);
+        scheduleId = selectElement.value;
+    } else {
+        scheduleId = document.querySelector(`[onclick*="enrollChild(${childId}, ${programId}"]`)
+                    ?.getAttribute('onclick')
+                    ?.match(/enrollChild\(\d+,\s*(\d+)/)?.[1];
+    }
+    
+    if (!scheduleId) {
+        alert('Please select a schedule.');
+        return;
+    }
+    
+    const button = event.target;
+    const originalText = button.innerHTML;
+    button.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Enrolling...';
+    button.disabled = true;
+    
+    fetch('/api/enroll', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            child_id: childId,
+            schedule_id: parseInt(scheduleId)
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert(data.message);
+            
+            bootstrap.Modal.getInstance(document.getElementById('enrollModal')).hide();
+            
+            location.reload();
+        } else {
+            alert('Error: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Enrollment error:', error);
+        alert('Failed to enroll. Please try again.');
+    })
+    .finally(() => {
+        button.innerHTML = originalText;
+        button.disabled = false;
+    });
+}
+
+function confirmDelete(childId, childName) {
+    document.getElementById('deleteChildName').textContent = childName;
+    document.getElementById('deleteForm').action = `/parent/children/${childId}/delete`;
+    new bootstrap.Modal(document.getElementById('deleteModal')).show();
+}
+</script>
+<style>
+.child-card {
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.child-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+</style>
+{% endblock %}

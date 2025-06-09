@@ -1,0 +1,467 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="hero-section position-relative overflow-hidden">
+    <div class="container">
+        <div class="row align-items-center min-vh-75">
+            <div class="col-lg-6">
+                <div class="hero-content fade-in">
+                    <div class="badge bg-white bg-opacity-20 text-black mb-4 px-3 py-2">
+                        <i class="bi bi-geo-alt-fill me-2"></i>
+                        Serving Astana Families
+                    </div>
+                    <h1 class="display-3 fw-bold mb-4 text-white">
+                        Discover Amazing 
+                        <span class="text-primary-200">Education Centers</span> 
+                        for Your Kids
+                    </h1>
+                    <p class="lead mb-5 text-white text-opacity-90 fs-5">
+                        Connect with the best education centers in Astana. Find programs that match your child's interests, 
+                        enroll with ease, and watch them thrive in our beautiful city.
+                    </p>
+                    <div class="d-flex flex-wrap gap-3 mb-5">
+                        <a href="{{ url_for('auth.register_choice') }}" class="btn btn-light btn-lg px-4 py-3 shadow-medium">
+                            <i class="bi bi-rocket-takeoff me-2"></i>
+                            Get Started Free
+                        </a>
+                        <a href="{{ url_for('auth.login') }}" class="btn btn-outline-light btn-lg px-4 py-3">
+                            <i class="bi bi-box-arrow-in-right me-2"></i>
+                            Sign In
+                        </a>
+                    </div>
+                    <div class="d-flex align-items-center gap-4 text-white text-opacity-75">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-people-fill me-2 fs-5"></i>
+                            <span class="fw-medium">500+ Families</span>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-building me-2 fs-5"></i>
+                            <span class="fw-medium">50+ Centers</span>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-mortarboard me-2 fs-5"></i>
+                            <span class="fw-medium">200+ Programs</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="hero-visual text-center position-relative">
+                    <div class="position-relative">
+                        <div class="floating-card position-absolute top-0 end-0 bg-white rounded-xl p-3 shadow-large" 
+                             style="animation: float 3s ease-in-out infinite; transform: translateY(-20px);">
+                            <div class="d-flex align-items-center">
+                                <div class="bg-success rounded-circle p-2 me-2">
+                                    <i class="bi bi-music-note text-white"></i>
+                                </div>
+                                <div>
+                                    <div class="fw-bold text-sm text-muted">Music Classes</div>
+                                    <div class="text-muted text-xs">15 programs</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="floating-card position-absolute bottom-0 start-0 bg-white rounded-xl p-3 shadow-large" 
+                             style="animation: float 3s ease-in-out infinite 1s; transform: translateY(20px);">
+                            <div class="d-flex align-items-center">
+                                <div class="bg-warning rounded-circle p-2 me-2">
+                                    <i class="bi bi-palette text-white"></i>
+                                </div>
+                                <div>
+                                    <div class="fw-bold text-sm text-muted">Art Studio</div>
+                                    <div class="text-muted text-xs">8 programs</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="floating-card position-absolute top-50 start-50 bg-white rounded-xl p-3 shadow-large" 
+                             style="animation: float 3s ease-in-out infinite 2s; transform: translate(-50%, -50%);">
+                            <div class="d-flex align-items-center">
+                                <div class="bg-primary rounded-circle p-2 me-2">
+                                    <i class="bi bi-calculator text-white"></i>
+                                </div>
+                                <div>
+                                    <div class="fw-bold text-sm text-muted">Math Academy</div>
+                                    <div class="text-muted text-xs">12 programs</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white bg-opacity-20 rounded-circle d-flex align-items-center justify-content-center mx-auto" 
+                             style="width: 200px; height: 200px;">
+                            <i class="bi bi-geo-alt-fill text-muted" style="font-size: 4rem;"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="position-absolute top-0 start-0 w-100 h-100 opacity-10">
+        <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <pattern id="grid" width="60" height="60" patternUnits="userSpaceOnUse">
+                    <circle cx="30" cy="30" r="2" fill="white" opacity="0.3"/>
+                </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#grid)"/>
+        </svg>
+    </div>
+</section>
+
+<section class="py-5 my-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <div class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 mb-3 text-white">
+                <i class="bi bi-lightbulb me-2"></i>
+                How It Works
+            </div>
+            <h2 class="display-5 fw-bold mb-3">
+                Simple Steps to <span class="text-primary">Amazing Education</span>
+            </h2>
+            <p class="lead text-muted mx-auto" style="max-width: 600px;">
+                We've made it incredibly easy to find and enroll in the perfect programs for your children
+            </p>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-lg-4">
+                <div class="card h-100 text-center border-0 shadow-medium hover-lift">
+                    <div class="card-body p-4">
+                        <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-4" 
+                             style="width: 80px; height: 80px;">
+                            <i class="bi bi-people-fill text-primary" style="font-size: 2rem;"></i>
+                        </div>
+                        <h4 class="fw-bold mb-3">For Parents</h4>
+                        <p class="text-muted mb-4">
+                            Discover education centers on our interactive map. Browse programs, read reviews, 
+                            and enroll your children with just a few clicks.
+                        </p>
+                        <ul class="list-unstyled text-start text-muted small mb-4">
+                            <li class="mb-2">
+                                <i class="bi bi-check-circle text-success me-2"></i>
+                                Interactive map search
+                            </li>
+                            <li class="mb-2">
+                                <i class="bi bi-check-circle text-success me-2"></i>
+                                Detailed program information
+                            </li>
+                            <li class="mb-2">
+                                <i class="bi bi-check-circle text-success me-2"></i>
+                                Easy online enrollment
+                            </li>
+                            <li class="mb-2">
+                                <i class="bi bi-check-circle text-success me-2"></i>
+                                Track your child's progress
+                            </li>
+                        </ul>
+                        <a href="{{ url_for('auth.register_parent') }}" class="btn btn-primary rounded-pill px-4">
+                            Register as Parent
+                            <i class="bi bi-arrow-right ms-2"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4">
+                <div class="card h-100 text-center border-0 shadow-medium hover-lift">
+                    <div class="card-body p-4">
+                        <div class="bg-success bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-4" 
+                             style="width: 80px; height: 80px;">
+                            <i class="bi bi-building text-success" style="font-size: 2rem;"></i>
+                        </div>
+                        <h4 class="fw-bold mb-3">For Education Centers</h4>
+                        <p class="text-muted mb-4">
+                            Create your center profile, showcase your programs, manage schedules, 
+                            and grow your student community effortlessly.
+                        </p>
+                        <ul class="list-unstyled text-start text-muted small mb-4">
+                            <li class="mb-2">
+                                <i class="bi bi-check-circle text-success me-2"></i>
+                                Professional center profiles
+                            </li>
+                            <li class="mb-2">
+                                <i class="bi bi-check-circle text-success me-2"></i>
+                                Program & schedule management
+                            </li>
+                            <li class="mb-2">
+                                <i class="bi bi-check-circle text-success me-2"></i>
+                                Teacher collaboration tools
+                            </li>
+                            <li class="mb-2">
+                                <i class="bi bi-check-circle text-success me-2"></i>
+                                Enrollment analytics
+                            </li>
+                        </ul>
+                        <a href="{{ url_for('auth.register_center') }}" class="btn btn-success rounded-pill px-4">
+                            Register Center
+                            <i class="bi bi-arrow-right ms-2"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4">
+                <div class="card h-100 text-center border-0 shadow-medium hover-lift">
+                    <div class="card-body p-4">
+                        <div class="bg-warning bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-4" 
+                             style="width: 80px; height: 80px;">
+                            <i class="bi bi-person-workspace text-warning" style="font-size: 2rem;"></i>
+                        </div>
+                        <h4 class="fw-bold mb-3">For Teachers</h4>
+                        <p class="text-muted mb-4">
+                            Join education centers with invite codes. Access your teaching schedule, 
+                            manage student information, and focus on what you do best.
+                        </p>
+                        <ul class="list-unstyled text-start text-muted small mb-4">
+                            <li class="mb-2">
+                                <i class="bi bi-check-circle text-success me-2"></i>
+                                Easy center joining process
+                            </li>
+                            <li class="mb-2">
+                                <i class="bi bi-check-circle text-success me-2"></i>
+                                Digital schedule management
+                            </li>
+                            <li class="mb-2">
+                                <i class="bi bi-check-circle text-success me-2"></i>
+                                Student progress tracking
+                            </li>
+                            <li class="mb-2">
+                                <i class="bi bi-check-circle text-success me-2"></i>
+                                Parent communication tools
+                            </li>
+                        </ul>
+                        <a href="{{ url_for('auth.register_teacher') }}" class="btn btn-warning rounded-pill px-4">
+                            Join as Teacher
+                            <i class="bi bi-arrow-right ms-2"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-5 bg-gray-50">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <div class="pe-lg-5">
+                    <div class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 mb-3 text-white">
+                        <i class="bi bi-star me-2"></i>
+                        Why Choose SamgauKids
+                    </div>
+                    <h2 class="display-5 fw-bold mb-4">
+                        The <span class="text-primary">Smart Way</span> to Find Education
+                    </h2>
+                    <p class="lead text-muted mb-4">
+                        We've built the most comprehensive platform for education in Astana, 
+                        making it easier than ever to connect families with amazing programs.
+                    </p>
+                    
+                    <div class="row g-4">
+                        <div class="col-sm-6">
+                            <div class="d-flex">
+                                <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center me-3" 
+                                     style="width: 48px; height: 48px; flex-shrink: 0;">
+                                    <i class="bi bi-map text-white"></i>
+                                </div>
+                                <div>
+                                    <h6 class="fw-bold">Interactive Map</h6>
+                                    <p class="text-muted small mb-0">Find centers near you with our beautiful map interface</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="d-flex">
+                                <div class="bg-success rounded-circle d-flex align-items-center justify-content-center me-3" 
+                                     style="width: 48px; height: 48px; flex-shrink: 0;">
+                                    <i class="bi bi-shield-check text-white"></i>
+                                </div>
+                                <div>
+                                    <h6 class="fw-bold">Verified Centers</h6>
+                                    <p class="text-muted small mb-0">All centers are verified for quality and safety</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="d-flex">
+                                <div class="bg-warning rounded-circle d-flex align-items-center justify-content-center me-3" 
+                                     style="width: 48px; height: 48px; flex-shrink: 0;">
+                                    <i class="bi bi-lightning text-white"></i>
+                                </div>
+                                <div>
+                                    <h6 class="fw-bold">Instant Booking</h6>
+                                    <p class="text-muted small mb-0">Enroll your child in seconds, not hours</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="d-flex">
+                                <div class="bg-info rounded-circle d-flex align-items-center justify-content-center me-3" 
+                                     style="width: 48px; height: 48px; flex-shrink: 0;">
+                                    <i class="bi bi-headset text-white"></i>
+                                </div>
+                                <div>
+                                    <h6 class="fw-bold">Local Support</h6>
+                                    <p class="text-muted small mb-0">Dedicated support team in Astana</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="position-relative">
+                    <div class="bg-white rounded-3xl shadow-large p-4 mx-auto" style="max-width: 300px;">
+                        <div class="bg-primary rounded-2xl p-4 text-white text-center mb-3">
+                            <i class="bi bi-geo-alt-fill fs-1 mb-2"></i>
+                            <h6 class="fw-bold">Find Centers Near You</h6>
+                        </div>
+                        <div class="space-y-3">
+                            <div class="d-flex align-items-center p-2 bg-gray-50 rounded-xl">
+                                <div class="bg-success rounded-circle me-3" style="width: 8px; height: 8px;"></div>
+                                <div class="flex-grow-1">
+                                    <div class="fw-bold small">Music Academy</div>
+                                    <div class="text-muted" style="font-size: 0.7rem;">0.5km away</div>
+                                </div>
+                            </div>
+                            <div class="d-flex align-items-center p-2 bg-gray-50 rounded-xl">
+                                <div class="bg-warning rounded-circle me-3" style="width: 8px; height: 8px;"></div>
+                                <div class="flex-grow-1">
+                                    <div class="fw-bold small">Art Studio</div>
+                                    <div class="text-muted" style="font-size: 0.7rem;">1.2km away</div>
+                                </div>
+                            </div>
+                            <div class="d-flex align-items-center p-2 bg-gray-50 rounded-xl">
+                                <div class="bg-primary rounded-circle me-3" style="width: 8px; height: 8px;"></div>
+                                <div class="flex-grow-1">
+                                    <div class="fw-bold small">Sports Center</div>
+                                    <div class="text-muted" style="font-size: 0.7rem;">2.1km away</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-5 my-5">
+    <div class="container">
+        <div class="card border-0 bg-primary text-white rounded-3xl shadow-large overflow-hidden position-relative">
+            <div class="card-body p-5 text-center position-relative">
+                <div class="row justify-content-center">
+                    <div class="col-lg-8">
+                        <h2 class="display-5 fw-bold mb-4">
+                            Ready to Start Your Child's Educational Journey?
+                        </h2>
+                        <p class="lead mb-5 text-white text-opacity-90">
+                            Join thousands of families in Astana who trust SamgauKids to find the perfect 
+                            educational programs for their children.
+                        </p>
+                        <div class="d-flex flex-wrap gap-3 justify-content-center">
+                            <a href="{{ url_for('auth.register_choice') }}" class="btn btn-light btn-lg px-5 py-3 shadow-medium">
+                                <i class="bi bi-rocket-takeoff me-2"></i>
+                                Get Started Today
+                            </a>
+                            <a href="{{ url_for('auth.login') }}" class="btn btn-outline-light btn-lg px-5 py-3">
+                                <i class="bi bi-box-arrow-in-right me-2"></i>
+                                Sign In
+                            </a>
+                        </div>
+                        
+                        <div class="row mt-5 pt-4 border-top border-white border-opacity-20">
+                            <div class="col-md-4">
+                                <div class="display-6 fw-bold">500+</div>
+                                <div class="text-white text-opacity-75">Happy Families</div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="display-6 fw-bold">50+</div>
+                                <div class="text-white text-opacity-75">Education Centers</div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="display-6 fw-bold">200+</div>
+                                <div class="text-white text-opacity-75">Active Programs</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="position-absolute top-0 start-0 w-100 h-100 opacity-10">
+                <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <pattern id="cta-pattern" width="40" height="40" patternUnits="userSpaceOnUse">
+                            <circle cx="20" cy="20" r="1.5" fill="white" opacity="0.4"/>
+                        </pattern>
+                    </defs>
+                    <rect width="100%" height="100%" fill="url(#cta-pattern)"/>
+                </svg>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+.hover-lift {
+    transition: all 0.3s ease;
+}
+
+.hover-lift:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+}
+
+.floating-card {
+    animation-fill-mode: both;
+}
+
+.min-vh-75 {
+    min-height: 75vh;
+}
+
+.rounded-3xl {
+    border-radius: 1.5rem !important;
+}
+
+.text-primary-200 {
+    color: #bfdbfe !important;
+}
+
+.space-y-3 > * + * {
+    margin-top: 0.75rem;
+}
+
+.text-xs {
+    font-size: 0.75rem;
+}
+
+.text-sm {
+    font-size: 0.875rem;
+}
+
+@media (max-width: 768px) {
+    .display-3 {
+        font-size: 2.5rem;
+    }
+    
+    .display-5 {
+        font-size: 2rem;
+    }
+    
+    .floating-card {
+        position: static !important;
+        margin-bottom: 1rem;
+        animation: none !important;
+        transform: none !important;
+    }
+}
+</style>
+{% endblock %}

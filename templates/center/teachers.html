@@ -1,0 +1,308 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Teachers - {{ super() }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-3">
+            <div class="sidebar">
+                <div class="p-3">
+                    <h5 class="text-white mb-4">
+                        <i class="bi bi-building me-2"></i>{{ center.center_name if center else "Center Management" }}
+                    </h5>
+                    <nav class="nav flex-column">
+                        <a class="nav-link" href="{{ url_for('center.dashboard') }}">
+                            <i class="bi bi-speedometer2 me-2"></i>Overview
+                        </a>
+                        <a class="nav-link" href="{{ url_for('center.programs') }}">
+                            <i class="bi bi-book me-2"></i>Programs
+                        </a>
+                        <a class="nav-link" href="{{ url_for('center.schedules') }}">
+                            <i class="bi bi-calendar-week me-2"></i>Schedules
+                        </a>
+                        <a class="nav-link" href="{{ url_for('center.enrollments') }}">
+                            <i class="bi bi-people me-2"></i>Enrollments
+                        </a>
+                        <a class="nav-link active" href="{{ url_for('center.teachers') }}">
+                            <i class="bi bi-person-workspace me-2"></i>Teachers
+                        </a>
+                        <a class="nav-link" href="{{ url_for('center.profile') }}">
+                            <i class="bi bi-building-gear me-2"></i>Profile Settings
+                        </a>
+                    </nav>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-9">
+            <div class="content-wrapper">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2 class="fw-bold">Teacher Management</h2>
+                    <div class="d-flex gap-2">
+                        <span class="badge bg-success fs-6">{{ teachers|length }} Teachers</span>
+                        <button class="btn btn-primary" onclick="showInviteInfo()">
+                            <i class="bi bi-person-plus me-2"></i>Invite Teacher
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col-md-8">
+                                <h5>Invite Teachers to Your Center</h5>
+                                <p class="text-muted mb-0">
+                                    Share the invite code below with teachers. They'll need this code when registering 
+                                    as a teacher to join your center.
+                                </p>
+                            </div>
+                            <div class="col-md-4 text-center">
+                                <div class="bg-light p-3 rounded">
+                                    <h2 class="text-primary fw-bold mb-1">{{ center.invite_code }}</h2>
+                                    <div class="d-flex gap-2 justify-content-center">
+                                        <button class="btn btn-sm btn-outline-primary" onclick="copyInviteCode()">
+                                            <i class="bi bi-clipboard"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-secondary" onclick="shareInviteCode()">
+                                            <i class="bi bi-share"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                {% if teachers %}
+                <div class="row g-4">
+                    {% for teacher in teachers %}
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <div class="d-flex align-items-start justify-content-between mb-3">
+                                    <div class="d-flex align-items-center">
+                                        <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center me-3" 
+                                             style="width: 50px; height: 50px;">
+                                            <span class="text-white fw-bold">{{ teacher.user.name[0] }}</span>
+                                        </div>
+                                        <div>
+                                            <h6 class="mb-1">{{ teacher.user.name }}</h6>
+                                            {% if teacher.specialization %}
+                                            <small class="text-muted">{{ teacher.specialization }}</small>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="dropdown">
+                                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" 
+                                                data-bs-toggle="dropdown">
+                                            <i class="bi bi-three-dots"></i>
+                                        </button>
+                                        <ul class="dropdown-menu">
+                                            <li><a class="dropdown-item" href="#" onclick="viewTeacherDetails({{ teacher.id }})">
+                                                <i class="bi bi-eye me-2"></i>View Details
+                                            </a></li>
+                                            <li><a class="dropdown-item" href="#" onclick="editTeacher({{ teacher.id }})">
+                                                <i class="bi bi-pencil me-2"></i>Edit Info
+                                            </a></li>
+                                            <li><hr class="dropdown-divider"></li>
+                                            <li><a class="dropdown-item text-danger" href="#" onclick="removeTeacher({{ teacher.id }}, '{{ teacher.user.name }}')">
+                                                <i class="bi bi-person-x me-2"></i>Remove Teacher
+                                            </a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <div class="d-flex align-items-center mb-1">
+                                        <i class="bi bi-envelope me-2 text-muted"></i>
+                                        <small>{{ teacher.user.email }}</small>
+                                    </div>
+                                    {% if teacher.user.phone %}
+                                    <div class="d-flex align-items-center mb-1">
+                                        <i class="bi bi-telephone me-2 text-muted"></i>
+                                        <small>{{ teacher.user.phone }}</small>
+                                    </div>
+                                    {% endif %}
+                                    <div class="d-flex align-items-center">
+                                        <i class="bi bi-calendar me-2 text-muted"></i>
+                                        <small>Joined {{ teacher.hire_date.strftime('%B %Y') if teacher.hire_date else 'Recently' }}</small>
+                                    </div>
+                                </div>
+                                
+                                {% if teacher.bio %}
+                                <p class="small text-muted mb-3">{{ teacher.bio[:100] }}{% if teacher.bio|length > 100 %}...{% endif %}</p>
+                                {% endif %}
+                                
+                                <div class="row g-2 text-center">
+                                    <div class="col-6">
+                                        <div class="bg-light p-2 rounded">
+                                            <div class="fw-bold text-primary">{{ teacher.schedules|length }}</div>
+                                            <small class="text-muted">Classes</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="bg-light p-2 rounded">
+                                            <div class="fw-bold text-success">
+                                                {% set student_count = 0 %}
+                                                {% for schedule in teacher.schedules %}
+                                                    {% set student_count = student_count + schedule.enrollments|selectattr('status', 'equalto', 'active')|list|length %}
+                                                {% endfor %}
+                                                {{ student_count }}
+                                            </div>
+                                            <small class="text-muted">Students</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-5">
+                    <i class="bi bi-person-workspace display-1 text-muted mb-4"></i>
+                    <h3>No Teachers Yet</h3>
+                    <p class="text-muted mb-4">
+                        Invite teachers to join your center by sharing your invite code. 
+                        Once they register, they'll appear here.
+                    </p>
+                    <div class="card mx-auto" style="max-width: 400px;">
+                        <div class="card-body text-center">
+                            <h5>Your Invite Code</h5>
+                            <div class="bg-light p-3 rounded mb-3">
+                                <h2 class="text-primary fw-bold">{{ center.invite_code }}</h2>
+                            </div>
+                            <div class="d-flex gap-2 justify-content-center">
+                                <button class="btn btn-primary" onclick="copyInviteCode()">
+                                    <i class="bi bi-clipboard me-2"></i>Copy Code
+                                </button>
+                                <button class="btn btn-outline-primary" onclick="shareInviteCode()">
+                                    <i class="bi bi-share me-2"></i>Share
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="teacherDetailsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Teacher Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="teacherDetailsContent">
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="removeTeacherModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Remove Teacher</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to remove <strong><span id="teacherNameToRemove"></span></strong> from your center?</p>
+                <div class="alert alert-warning">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    This will also unassign them from all scheduled classes. This action cannot be undone.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" id="confirmRemoveTeacher">Remove Teacher</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function copyInviteCode() {
+    const code = "{{ center.invite_code }}";
+    navigator.clipboard.writeText(code).then(function() {
+        alert('Invite code copied to clipboard: ' + code);
+    });
+}
+
+function shareInviteCode() {
+    const code = "{{ center.invite_code }}";
+    const text = `Join {{ center.center_name }} as a teacher! Use invite code: ${code}\n\nRegister at: ${window.location.origin}/register/teacher`;
+    
+    if (navigator.share) {
+        navigator.share({
+            title: 'Teacher Invitation',
+            text: text
+        });
+    } else {
+        navigator.clipboard.writeText(text).then(function() {
+            alert('Invitation message copied to clipboard!');
+        });
+    }
+}
+
+function showInviteInfo() {
+    alert(`Share this invite code with teachers: {{ center.invite_code }}\n\nThey can register at: ${window.location.origin}/register/teacher`);
+}
+
+function viewTeacherDetails(teacherId) {
+    fetch(`/center/teacher/${teacherId}/details`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById('teacherDetailsContent').innerHTML = data.html;
+                new bootstrap.Modal(document.getElementById('teacherDetailsModal')).show();
+            } else {
+                alert('Error loading teacher details.');
+            }
+        })
+        .catch(error => {
+            alert('Error loading teacher details.');
+        });
+}
+
+function editTeacher(teacherId) {
+    window.location.href = `/center/teacher/${teacherId}/edit`;
+}
+
+let teacherToRemove = null;
+
+function removeTeacher(teacherId, teacherName) {
+    teacherToRemove = teacherId;
+    document.getElementById('teacherNameToRemove').textContent = teacherName;
+    new bootstrap.Modal(document.getElementById('removeTeacherModal')).show();
+}
+
+document.getElementById('confirmRemoveTeacher').addEventListener('click', function() {
+    if (teacherToRemove) {
+        fetch(`/center/teacher/${teacherToRemove}/remove`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(data.message);
+                location.reload();
+            } else {
+                alert(data.error);
+            }
+        })
+        .catch(error => {
+            alert('Error removing teacher. Please try again.');
+        });
+    }
+});
+</script>
+{% endblock %}

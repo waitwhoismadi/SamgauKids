@@ -1,0 +1,556 @@
+{% extends "base.html" %}
+
+{% block title %}Teacher Dashboard - {{ super() }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row g-0">
+        <div class="col-xl-3 col-lg-4">
+            <div class="sidebar">
+                <div class="p-4">
+                    <div class="text-center mb-4">
+                        <div class="bg-white bg-opacity-20 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" 
+                             style="width: 80px; height: 80px;">
+                            <i class="bi bi-person-workspace text-white" style="font-size: 2rem;"></i>
+                        </div>
+                        <h5 class="text-white fw-bold mb-1">Teaching Portal</h5>
+                        {% if center %}
+                        <p class="text-white text-opacity-75 small mb-0">
+                            <i class="bi bi-building me-1"></i>{{ center.center_name }}
+                        </p>
+                        {% endif %}
+                    </div>
+                    
+                    <nav class="nav flex-column">
+                        <a class="nav-link active" href="{{ url_for('teacher.dashboard') }}">
+                            <i class="bi bi-speedometer2 me-3"></i>Overview
+                        </a>
+                        <a class="nav-link" href="{{ url_for('teacher.schedule') }}">
+                            <i class="bi bi-calendar-week me-3"></i>My Schedule
+                            {% if stats.assigned_classes > 0 %}
+                            <span class="badge bg-white bg-opacity-20 ms-auto">{{ stats.assigned_classes }}</span>
+                            {% endif %}
+                        </a>
+                        <a class="nav-link" href="{{ url_for('teacher.students') }}">
+                            <i class="bi bi-people me-3"></i>Students
+                            {% if stats.students > 0 %}
+                            <span class="badge bg-warning ms-auto">{{ stats.students }}</span>
+                            {% endif %}
+                        </a>
+                        <a class="nav-link" href="#classes">
+                            <i class="bi bi-journal-bookmark me-3"></i>Classes
+                        </a>
+                    </nav>
+                    
+                    <div class="mt-4 pt-4 border-top border-white border-opacity-20">
+                        <div class="row g-2 text-center">
+                            <div class="col-6">
+                                <div class="text-white">
+                                    <div class="h5 fw-bold mb-0">{{ stats.today_classes }}</div>
+                                    <small class="text-white text-opacity-75">Today</small>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="text-white">
+                                    <div class="h5 fw-bold mb-0">{{ stats.students }}</div>
+                                    <small class="text-white text-opacity-75">Students</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-9 col-lg-8">
+            <div class="content-wrapper">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h1 class="h3 fw-bold text-gray-800 mb-1">Welcome back, {{ teacher.user.name }}!</h1>
+                        <p class="text-muted mb-0">Manage your teaching schedule and track student progress</p>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <div class="badge bg-warning bg-opacity-10 text-warning px-3 py-2">
+                            <i class="bi bi-person-workspace me-1"></i>Teacher Account
+                        </div>
+                        <div class="dropdown">
+                            <button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                <i class="bi bi-gear me-1"></i>Quick Actions
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end shadow-medium border-0 rounded-xl">
+                                <li><a class="dropdown-item rounded" href="{{ url_for('teacher.schedule') }}">
+                                    <i class="bi bi-calendar-week me-2 text-primary"></i>View Full Schedule
+                                </a></li>
+                                <li><a class="dropdown-item rounded" href="{{ url_for('teacher.students') }}">
+                                    <i class="bi bi-people me-2 text-success"></i>Manage Students
+                                </a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item rounded" href="#profile">
+                                    <i class="bi bi-person-gear me-2 text-muted"></i>Profile Settings
+                                </a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                {% if teacher and center %}
+                <div class="card border-0 shadow-soft mb-4 bg-gradient-warning">
+                    <div class="card-body p-4">
+                        <div class="row align-items-center">
+                            <div class="col-md-8">
+                                <div class="d-flex align-items-center text-white">
+                                    <div class="bg-white bg-opacity-20 rounded-circle p-3 me-3">
+                                        <i class="bi bi-person-check fs-4"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="fw-bold mb-1">You're part of {{ center.center_name }}!</h4>
+                                        <p class="mb-0 text-white text-opacity-90">
+                                            {% if teacher.specialization %}
+                                            Specialization: {{ teacher.specialization }}
+                                            {% else %}
+                                            Ready to inspire young minds in Astana
+                                            {% endif %}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                                <div class="d-flex gap-2 justify-content-md-end">
+                                    <a href="{{ url_for('teacher.schedule') }}" class="btn btn-light btn-sm">
+                                        <i class="bi bi-calendar-week me-1"></i>My Schedule
+                                    </a>
+                                    <a href="{{ url_for('teacher.students') }}" class="btn btn-outline-light btn-sm">
+                                        <i class="bi bi-people me-1"></i>Students
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                
+                <div class="row g-4 mb-4">
+                    <div class="col-lg-3 col-md-6">
+                        <div class="card border-0 shadow-soft h-100 stats-card">
+                            <div class="card-body text-center p-4">
+                                <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" 
+                                     style="width: 60px; height: 60px;">
+                                    <i class="bi bi-calendar-check text-primary fs-4"></i>
+                                </div>
+                                <h3 class="fw-bold text-gray-800 mb-1">{{ stats.today_classes }}</h3>
+                                <p class="text-muted mb-0">Today's Classes</p>
+                                {% if stats.today_classes > 0 %}
+                                <div class="mt-2">
+                                    <span class="badge bg-primary bg-opacity-10 text-primary">
+                                        <i class="bi bi-clock me-1"></i>Active Day
+                                    </span>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6">
+                        <div class="card border-0 shadow-soft h-100 stats-card">
+                            <div class="card-body text-center p-4">
+                                <div class="bg-success bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" 
+                                     style="width: 60px; height: 60px;">
+                                    <i class="bi bi-people text-success fs-4"></i>
+                                </div>
+                                <h3 class="fw-bold text-gray-800 mb-1">{{ stats.students }}</h3>
+                                <p class="text-muted mb-0">Total Students</p>
+                                <div class="mt-2">
+                                    <a href="{{ url_for('teacher.students') }}" class="btn btn-outline-success btn-sm">
+                                        <i class="bi bi-eye me-1"></i>View All
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6">
+                        <div class="card border-0 shadow-soft h-100 stats-card">
+                            <div class="card-body text-center p-4">
+                                <div class="bg-info bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" 
+                                     style="width: 60px; height: 60px;">
+                                    <i class="bi bi-journal-bookmark text-info fs-4"></i>
+                                </div>
+                                <h3 class="fw-bold text-gray-800 mb-1">{{ stats.assigned_classes }}</h3>
+                                <p class="text-muted mb-0">Weekly Classes</p>
+                                <div class="mt-2">
+                                    <a href="{{ url_for('teacher.schedule') }}" class="btn btn-outline-info btn-sm">
+                                        <i class="bi bi-calendar-week me-1"></i>Schedule
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6">
+                        <div class="card border-0 shadow-soft h-100 stats-card">
+                            <div class="card-body text-center p-4">
+                                <div class="bg-warning bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" 
+                                     style="width: 60px; height: 60px;">
+                                    <i class="bi bi-star text-warning fs-4"></i>
+                                </div>
+                                <h3 class="fw-bold text-gray-800 mb-1">4.8</h3>
+                                <p class="text-muted mb-0">Rating</p>
+                                <div class="mt-2">
+                                    <div class="d-flex justify-content-center">
+                                        {% for i in range(5) %}
+                                        <i class="bi bi-star-fill text-warning"></i>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row g-4">
+                    <div class="col-lg-4">
+                        <div class="card border-0 shadow-soft h-100">
+                            <div class="card-header bg-white border-0">
+                                <h6 class="fw-bold mb-0">
+                                    <i class="bi bi-person-badge me-2 text-primary"></i>Teacher Profile
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                {% if teacher %}
+                                <div class="text-center mb-4">
+                                    <div class="bg-warning bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" 
+                                         style="width: 80px; height: 80px;">
+                                        <span class="text-warning fw-bold fs-3">{{ teacher.user.name[0] }}</span>
+                                    </div>
+                                    <h5 class="fw-bold text-gray-800">{{ teacher.user.name }}</h5>
+                                    {% if teacher.specialization %}
+                                    <p class="text-muted mb-2">{{ teacher.specialization }}</p>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <div class="d-flex align-items-center mb-2">
+                                        <i class="bi bi-envelope me-2 text-muted"></i>
+                                        <span class="small">{{ teacher.user.email }}</span>
+                                    </div>
+                                    {% if teacher.user.phone %}
+                                    <div class="d-flex align-items-center mb-2">
+                                        <i class="bi bi-telephone me-2 text-muted"></i>
+                                        <span class="small">{{ teacher.user.phone }}</span>
+                                    </div>
+                                    {% endif %}
+                                    <div class="d-flex align-items-center">
+                                        <i class="bi bi-calendar me-2 text-muted"></i>
+                                        <span class="small">Joined {{ teacher.hire_date.strftime('%B %Y') if teacher.hire_date else 'Recently' }}</span>
+                                    </div>
+                                </div>
+                                
+                                {% if teacher.bio %}
+                                <div class="bg-gray-50 rounded-xl p-3 mb-3">
+                                    <h6 class="small fw-bold text-gray-700 mb-2">About Me:</h6>
+                                    <p class="text-muted small mb-0">{{ teacher.bio }}</p>
+                                </div>
+                                {% endif %}
+                                
+                                <div class="text-center">
+                                    <button class="btn btn-outline-primary btn-sm">
+                                        <i class="bi bi-pencil me-1"></i>Edit Profile
+                                    </button>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-lg-8">
+                        <div class="card border-0 shadow-soft h-100">
+                            <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center">
+                                <h6 class="fw-bold mb-0">
+                                    <i class="bi bi-calendar-day me-2 text-success"></i>Today's Classes
+                                </h6>
+                                <a href="{{ url_for('teacher.schedule') }}" class="btn btn-outline-success btn-sm">
+                                    View Full Schedule
+                                </a>
+                            </div>
+                            <div class="card-body">
+                                {% if today_classes %}
+                                    {% for schedule in today_classes %}
+                                    <div class="d-flex align-items-center p-4 mb-3 bg-gray-50 rounded-xl border-start border-4" 
+                                         style="border-color: {{ schedule.program.category.color }} !important;">
+                                        <div class="rounded-circle d-flex align-items-center justify-content-center me-4" 
+                                             style="width: 60px; height: 60px; background: {{ schedule.program.category.color }}20;">
+                                            <i class="{{ schedule.program.category.icon }} fs-4" 
+                                               style="color: {{ schedule.program.category.color }};"></i>
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <h6 class="fw-bold mb-1">{{ schedule.program.name }}</h6>
+                                            <div class="d-flex align-items-center text-muted small mb-2">
+                                                <div class="me-4">
+                                                    <i class="bi bi-clock me-1"></i>
+                                                    <span>{{ schedule.get_time_range() }}</span>
+                                                </div>
+                                                <div class="me-4">
+                                                    <i class="bi bi-people me-1"></i>
+                                                    <span>{{ schedule.enrollments|length }}/{{ schedule.max_students }} students</span>
+                                                </div>
+                                                {% if schedule.room_name %}
+                                                <div>
+                                                    <i class="bi bi-geo-alt me-1"></i>
+                                                    <span>{{ schedule.room_name }}</span>
+                                                </div>
+                                                {% endif %}
+                                            </div>
+                                            <div class="d-flex gap-2">
+                                                <span class="badge" style="background-color: {{ schedule.program.category.color }}20; color: {{ schedule.program.category.color }}">
+                                                    {{ schedule.program.category.name }}
+                                                </span>
+                                                {% if schedule.enrollments|length > 0 %}
+                                                <span class="badge bg-success bg-opacity-10 text-success">
+                                                    <i class="bi bi-people me-1"></i>{{ schedule.enrollments|length }} enrolled
+                                                </span>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        <div class="text-end">
+                                            <button class="btn btn-primary btn-sm">
+                                                <i class="bi bi-play-circle me-1"></i>Start Class
+                                            </button>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                {% else %}
+                                    <div class="text-center py-5">
+                                        <i class="bi bi-calendar-check display-4 text-muted mb-3"></i>
+                                        <h5 class="fw-bold text-gray-700">No Classes Today</h5>
+                                        <p class="text-muted mb-4">Enjoy your day off! Check your full schedule to see upcoming classes.</p>
+                                        <a href="{{ url_for('teacher.schedule') }}" class="btn btn-outline-primary">
+                                            <i class="bi bi-calendar-week me-1"></i>View Weekly Schedule
+                                        </a>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row g-4 mt-2">
+                    <div class="col-lg-6">
+                        <div class="card border-0 shadow-soft h-100">
+                            <div class="card-header bg-white border-0">
+                                <h6 class="fw-bold mb-0">
+                                    <i class="bi bi-building me-2 text-info"></i>Center Information
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                {% if center %}
+                                <div class="text-center mb-4">
+                                    <div class="bg-info bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" 
+                                         style="width: 60px; height: 60px;">
+                                        <i class="bi bi-building text-info fs-4"></i>
+                                    </div>
+                                    <h5 class="fw-bold text-gray-800">{{ center.center_name }}</h5>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <div class="d-flex align-items-center mb-2">
+                                        <i class="bi bi-geo-alt me-2 text-muted"></i>
+                                        <span class="small">{{ center.address }}</span>
+                                    </div>
+                                    {% if center.user.phone %}
+                                    <div class="d-flex align-items-center mb-2">
+                                        <i class="bi bi-telephone me-2 text-muted"></i>
+                                        <span class="small">{{ center.user.phone }}</span>
+                                    </div>
+                                    {% endif %}
+                                    {% if center.website %}
+                                    <div class="d-flex align-items-center">
+                                        <i class="bi bi-globe me-2 text-muted"></i>
+                                        <a href="{{ center.website }}" target="_blank" class="small text-decoration-none">Visit Website</a>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                
+                                {% if center.description %}
+                                <div class="bg-gray-50 rounded-xl p-3">
+                                    <p class="text-muted small mb-0">{{ center.description }}</p>
+                                </div>
+                                {% endif %}
+                                {% else %}
+                                <p class="text-muted text-center">Center information not available</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-lg-6">
+                        <div class="card border-0 shadow-soft h-100">
+                            <div class="card-header bg-white border-0">
+                                <h6 class="fw-bold mb-0">
+                                    <i class="bi bi-lightning me-2 text-warning"></i>Quick Actions & Stats
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row g-3 mb-4">
+                                    <div class="col-6">
+                                        <div class="bg-primary bg-opacity-10 rounded-xl p-3 text-center">
+                                            <div class="fw-bold text-primary h5 mb-1">{{ stats.assigned_classes }}</div>
+                                            <small class="text-muted">Weekly Classes</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="bg-success bg-opacity-10 rounded-xl p-3 text-center">
+                                            <div class="fw-bold text-success h5 mb-1">{{ stats.students }}</div>
+                                            <small class="text-muted">Total Students</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="d-grid gap-2">
+                                    <a href="{{ url_for('teacher.schedule') }}" class="btn btn-outline-primary">
+                                        <i class="bi bi-calendar-week me-2"></i>View Full Schedule
+                                    </a>
+                                    <a href="{{ url_for('teacher.students') }}" class="btn btn-outline-success">
+                                        <i class="bi bi-people me-2"></i>Manage Students
+                                    </a>
+                                    <button class="btn btn-outline-info" onclick="showAttendanceModal()">
+                                        <i class="bi bi-check-square me-2"></i>Mark Attendance
+                                    </button>
+                                    <button class="btn btn-outline-warning">
+                                        <i class="bi bi-chat-dots me-2"></i>Parent Communication
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.bg-gradient-warning {
+    background: linear-gradient(135deg, var(--warning-500) 0%, #d97706 100%);
+}
+
+.shadow-soft {
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06) !important;
+}
+
+.shadow-medium {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+}
+
+.rounded-xl {
+    border-radius: 0.75rem !important;
+}
+
+.text-gray-800 {
+    color: var(--gray-800) !important;
+}
+
+.text-gray-700 {
+    color: var(--gray-700) !important;
+}
+
+.bg-gray-50 {
+    background-color: var(--gray-50) !important;
+}
+
+.stats-card {
+    transition: all 0.3s ease;
+}
+
+.stats-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.nav-link {
+    transition: all 0.3s ease;
+    margin-bottom: 0.25rem;
+}
+
+.nav-link:hover {
+    transform: translateX(4px);
+}
+
+.fade-in {
+    animation: fadeIn 0.6s ease-out;
+}
+
+@keyframes fadeIn {
+    from { 
+        opacity: 0; 
+        transform: translateY(20px); 
+    }
+    to { 
+        opacity: 1; 
+        transform: translateY(0); 
+    }
+}
+
+.class-card {
+    transition: all 0.3s ease;
+}
+
+.class-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+@media (max-width: 768px) {
+    .content-wrapper {
+        padding: 1rem;
+    }
+    
+    .sidebar {
+        position: static;
+        height: auto;
+        min-height: auto;
+    }
+}
+</style>
+
+<script>
+function showAttendanceModal() {
+    alert('Attendance marking feature coming soon!');
+}
+
+function showNotification(message, type) {
+    const alertClass = type === 'error' ? 'danger' : type;
+    const iconClass = type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-triangle' : 'info-circle';
+    
+    const alert = document.createElement('div');
+    alert.className = `alert alert-${alertClass} alert-dismissible fade show position-fixed top-0 start-50 translate-middle-x mt-3`;
+    alert.style.zIndex = '9999';
+    alert.innerHTML = `
+        <i class="bi bi-${iconClass} me-2"></i>
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    document.body.appendChild(alert);
+    
+    setTimeout(() => {
+        if (alert.parentNode) {
+            alert.remove();
+        }
+    }, 5000);
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.card').forEach((card, index) => {
+        card.style.animationDelay = `${index * 0.1}s`;
+        card.classList.add('fade-in');
+    });
+    
+    document.querySelectorAll('.class-card').forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-2px)';
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0)';
+        });
+    });
+});
+</script>
+{% endblock %}

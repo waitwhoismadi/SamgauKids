@@ -1,0 +1,446 @@
+{% extends "base.html" %}
+
+{% block title %}Choose Your Role - {{ super() }}{% endblock %}
+
+{% block content %}
+<div class="min-vh-100 bg-gradient py-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <div class="badge bg-primary bg-opacity-10 text-primary px-4 py-2 mb-4 rounded-pill">
+                <i class="bi bi-people me-2"></i>
+                Join SamgauKids Community
+            </div>
+            <h1 class="display-4 fw-bold text-gray-800 mb-4">
+                Choose Your <span class="text-primary">Role</span>
+            </h1>
+            <p class="lead text-muted mx-auto" style="max-width: 600px;">
+                Select how you want to use our platform and join thousands of families, 
+                centers, and teachers in Astana
+            </p>
+        </div>
+        
+        <div class="row g-4 justify-content-center">
+            <div class="col-lg-4 col-md-6">
+                <div class="card h-100 border-0 shadow-medium hover-lift role-card" data-role="parent">
+                    <div class="card-body p-4 text-center position-relative">
+                        <div class="position-absolute top-0 start-50 translate-middle">
+                            <span class="badge bg-primary px-3 py-2 rounded-pill shadow-sm">
+                                <i class="bi bi-star-fill me-1"></i>
+                                Most Popular
+                            </span>
+                        </div>
+                        
+                        <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-4 mt-3" 
+                             style="width: 100px; height: 100px;">
+                            <i class="bi bi-people-fill text-primary" style="font-size: 3rem;"></i>
+                        </div>
+                        
+                        <h4 class="fw-bold mb-3">Parent</h4>
+                        <p class="text-muted mb-4">
+                            Find amazing education centers for your children. Search on our interactive map, 
+                            compare programs, and enroll with ease.
+                        </p>
+                        
+                        <div class="text-start mb-4">
+                            <div class="feature-item d-flex align-items-center mb-3">
+                                <div class="bg-success rounded-circle d-flex align-items-center justify-content-center me-3" 
+                                     style="width: 32px; height: 32px; flex-shrink: 0;">
+                                    <i class="bi bi-check text-white small"></i>
+                                </div>
+                                <span class="text-muted">Search centers on interactive map</span>
+                            </div>
+                            <div class="feature-item d-flex align-items-center mb-3">
+                                <div class="bg-success rounded-circle d-flex align-items-center justify-content-center me-3" 
+                                     style="width: 32px; height: 32px; flex-shrink: 0;">
+                                    <i class="bi bi-check text-white small"></i>
+                                </div>
+                                <span class="text-muted">Browse detailed program information</span>
+                            </div>
+                            <div class="feature-item d-flex align-items-center mb-3">
+                                <div class="bg-success rounded-circle d-flex align-items-center justify-content-center me-3" 
+                                     style="width: 32px; height: 32px; flex-shrink: 0;">
+                                    <i class="bi bi-check text-white small"></i>
+                                </div>
+                                <span class="text-muted">Enroll children in one click</span>
+                            </div>
+                            <div class="feature-item d-flex align-items-center mb-3">
+                                <div class="bg-success rounded-circle d-flex align-items-center justify-content-center me-3" 
+                                     style="width: 32px; height: 32px; flex-shrink: 0;">
+                                    <i class="bi bi-check text-white small"></i>
+                                </div>
+                                <span class="text-muted">Track enrollment status</span>
+                            </div>
+                        </div>
+                        
+                        <div class="row g-3 mb-4 py-3 bg-gray-50 rounded-xl">
+                            <div class="col-4 text-center">
+                                <div class="fw-bold text-primary">500+</div>
+                                <small class="text-muted">Families</small>
+                            </div>
+                            <div class="col-4 text-center">
+                                <div class="fw-bold text-primary">50+</div>
+                                <small class="text-muted">Centers</small>
+                            </div>
+                            <div class="col-4 text-center">
+                                <div class="fw-bold text-primary">200+</div>
+                                <small class="text-muted">Programs</small>
+                            </div>
+                        </div>
+                        
+                        <a href="{{ url_for('auth.register_parent') }}" class="btn btn-primary w-100 py-3 fw-medium rounded-xl">
+                            <i class="bi bi-person-plus me-2"></i>
+                            Register as Parent
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4 col-md-6">
+                <div class="card h-100 border-0 shadow-medium hover-lift role-card" data-role="center">
+                    <div class="card-body p-4 text-center">
+                        <div class="bg-success bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-4" 
+                             style="width: 100px; height: 100px;">
+                            <i class="bi bi-building text-success" style="font-size: 3rem;"></i>
+                        </div>
+                        
+                        <h4 class="fw-bold mb-3">Education Center</h4>
+                        <p class="text-muted mb-4">
+                            Showcase your center to families in Astana. Manage programs, schedules, 
+                            and grow your student community.
+                        </p>
+                        
+                        <div class="text-start mb-4">
+                            <div class="feature-item d-flex align-items-center mb-3">
+                                <div class="bg-success rounded-circle d-flex align-items-center justify-content-center me-3" 
+                                     style="width: 32px; height: 32px; flex-shrink: 0;">
+                                    <i class="bi bi-check text-white small"></i>
+                                </div>
+                                <span class="text-muted">Create professional center profile</span>
+                            </div>
+                            <div class="feature-item d-flex align-items-center mb-3">
+                                <div class="bg-success rounded-circle d-flex align-items-center justify-content-center me-3" 
+                                     style="width: 32px; height: 32px; flex-shrink: 0;">
+                                    <i class="bi bi-check text-white small"></i>
+                                </div>
+                                <span class="text-muted">Manage programs and schedules</span>
+                            </div>
+                            <div class="feature-item d-flex align-items-center mb-3">
+                                <div class="bg-success rounded-circle d-flex align-items-center justify-content-center me-3" 
+                                     style="width: 32px; height: 32px; flex-shrink: 0;">
+                                    <i class="bi bi-check text-white small"></i>
+                                </div>
+                                <span class="text-muted">Invite and manage teachers</span>
+                            </div>
+                            <div class="feature-item d-flex align-items-center mb-3">
+                                <div class="bg-success rounded-circle d-flex align-items-center justify-content-center me-3" 
+                                     style="width: 32px; height: 32px; flex-shrink: 0;">
+                                    <i class="bi bi-check text-white small"></i>
+                                </div>
+                                <span class="text-muted">Track enrollment analytics</span>
+                            </div>
+                        </div>
+                        
+                        <a href="{{ url_for('auth.register_center') }}" class="btn btn-success w-100 py-3 fw-medium rounded-xl">
+                            <i class="bi bi-building-add me-2"></i>
+                            Register Your Center
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4 col-md-6">
+                <div class="card h-100 border-0 shadow-medium hover-lift role-card" data-role="teacher">
+                    <div class="card-body p-4 text-center">
+                        <div class="bg-warning bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-4" 
+                             style="width: 100px; height: 100px;">
+                            <i class="bi bi-person-workspace text-warning" style="font-size: 3rem;"></i>
+                        </div>
+                        
+                        <h4 class="fw-bold mb-3">Teacher</h4>
+                        <p class="text-muted mb-4">
+                            Join an education center using an invite code. Access your schedule, 
+                            manage students, and focus on teaching.
+                        </p>
+                        
+                        <div class="text-start mb-4">
+                            <div class="feature-item d-flex align-items-center mb-3">
+                                <div class="bg-success rounded-circle d-flex align-items-center justify-content-center me-3" 
+                                     style="width: 32px; height: 32px; flex-shrink: 0;">
+                                    <i class="bi bi-check text-white small"></i>
+                                </div>
+                                <span class="text-muted">Join with invite code</span>
+                            </div>
+                            <div class="feature-item d-flex align-items-center mb-3">
+                                <div class="bg-success rounded-circle d-flex align-items-center justify-content-center me-3" 
+                                     style="width: 32px; height: 32px; flex-shrink: 0;">
+                                    <i class="bi bi-check text-white small"></i>
+                                </div>
+                                <span class="text-muted">View digital schedules</span>
+                            </div>
+                            <div class="feature-item d-flex align-items-center mb-3">
+                                <div class="bg-success rounded-circle d-flex align-items-center justify-content-center me-3" 
+                                     style="width: 32px; height: 32px; flex-shrink: 0;">
+                                    <i class="bi bi-check text-white small"></i>
+                                </div>
+                                <span class="text-muted">Manage student information</span>
+                            </div>
+                            <div class="feature-item d-flex align-items-center mb-3">
+                                <div class="bg-success rounded-circle d-flex align-items-center justify-content-center me-3" 
+                                     style="width: 32px; height: 32px; flex-shrink: 0;">
+                                    <i class="bi bi-check text-white small"></i>
+                                </div>
+                                <span class="text-muted">Communicate with parents</span>
+                            </div>
+                        </div>
+                        
+                        <div class="alert alert-warning bg-warning bg-opacity-10 border-0 rounded-xl mb-4">
+                            <i class="bi bi-info-circle me-2"></i>
+                            <small>You need an <strong>invite code</strong> from an education center</small>
+                        </div>
+                        
+                        <a href="{{ url_for('auth.register_teacher') }}" class="btn btn-warning w-100 py-3 fw-medium rounded-xl">
+                            <i class="bi bi-person-plus me-2"></i>
+                            Join as Teacher
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="text-center mt-5 pt-4">
+            <p class="text-muted mb-4">
+                Already have an account? 
+                <a href="{{ url_for('auth.login') }}" class="text-primary fw-medium text-decoration-none">
+                    Sign in here
+                </a>
+            </p>
+            
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="row g-4 text-center">
+                        <div class="col-md-3 col-6">
+                            <div class="text-primary fw-bold fs-4">500+</div>
+                            <div class="text-muted small">Happy Families</div>
+                        </div>
+                        <div class="col-md-3 col-6">
+                            <div class="text-primary fw-bold fs-4">50+</div>
+                            <div class="text-muted small">Verified Centers</div>
+                        </div>
+                        <div class="col-md-3 col-6">
+                            <div class="text-primary fw-bold fs-4">200+</div>
+                            <div class="text-muted small">Active Programs</div>
+                        </div>
+                        <div class="col-md-3 col-6">
+                            <div class="text-primary fw-bold fs-4">100+</div>
+                            <div class="text-muted small">Expert Teachers</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.bg-gradient {
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+}
+
+.role-card {
+    transition: all 0.4s ease;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+.role-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transition: left 0.6s ease;
+}
+
+.role-card:hover::before {
+    left: 100%;
+}
+
+.hover-lift {
+    transition: all 0.4s ease;
+}
+
+.hover-lift:hover {
+    transform: translateY(-12px) scale(1.02);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
+}
+
+.role-card[data-role="parent"] {
+    border-top: 4px solid var(--primary-600);
+}
+
+.role-card[data-role="center"] {
+    border-top: 4px solid var(--success-500);
+}
+
+.role-card[data-role="teacher"] {
+    border-top: 4px solid var(--warning-500);
+}
+
+.feature-item {
+    transition: all 0.2s ease;
+}
+
+.feature-item:hover {
+    transform: translateX(4px);
+}
+
+.shadow-medium {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+}
+
+.rounded-xl {
+    border-radius: 0.75rem !important;
+}
+
+.rounded-pill {
+    border-radius: 50rem !important;
+}
+
+.text-gray-800 {
+    color: var(--gray-800) !important;
+}
+
+.bg-gray-50 {
+    background-color: var(--gray-50) !important;
+}
+
+.min-vh-100 {
+    min-height: 100vh;
+}
+
+.role-card {
+    animation: fadeInUp 0.6s ease-out;
+    animation-fill-mode: both;
+}
+
+.role-card:nth-child(1) { animation-delay: 0.1s; }
+.role-card:nth-child(2) { animation-delay: 0.2s; }
+.role-card:nth-child(3) { animation-delay: 0.3s; }
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.btn {
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s ease;
+}
+
+.btn:hover::before {
+    left: 100%;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+}
+
+@media (max-width: 768px) {
+    .min-vh-100 {
+        min-height: auto;
+    }
+    
+    .display-4 {
+        font-size: 2.5rem;
+    }
+    
+    .role-card {
+        margin-bottom: 1rem;
+    }
+    
+    .hover-lift:hover {
+        transform: translateY(-4px) scale(1.01);
+    }
+}
+
+.loading-shimmer {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+}
+</style>
+
+<script>
+document.querySelectorAll('.role-card').forEach(card => {
+    card.addEventListener('click', function(e) {
+        if (!e.target.closest('a')) {
+            const link = this.querySelector('a');
+            if (link) {
+                const btn = this.querySelector('.btn');
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '<i class="bi bi-arrow-clockwise spin me-2"></i>Loading...';
+                btn.classList.add('loading-shimmer');
+                
+                setTimeout(() => {
+                    window.location.href = link.href;
+                }, 300);
+            }
+        }
+    });
+});
+
+const style = document.createElement('style');
+style.textContent = `
+    .spin {
+        animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+`;
+document.head.appendChild(style);
+
+document.documentElement.style.scrollBehavior = 'smooth';
+
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.style.animationPlayState = 'running';
+        }
+    });
+}, { threshold: 0.1 });
+
+document.querySelectorAll('.role-card').forEach(card => {
+    observer.observe(card);
+});
+</script>
+{% endblock %}

@@ -1,0 +1,45 @@
+{% extends "emails/base.html" %}
+
+{% block title %}Enrollment Confirmation{% endblock %}
+{% block header %}Enrollment Submitted{% endblock %}
+
+{% block content %}
+<h2>Hello {{ parent.name }},</h2>
+
+<p>Thank you for enrolling {{ child.name }} in our program!</p>
+
+<div class="highlight">
+    <h3>Enrollment Details:</h3>
+    <ul>
+        <li><strong>Child:</strong> {{ child.name }}</li>
+        <li><strong>Program:</strong> {{ program.name }}</li>
+        <li><strong>Center:</strong> {{ center.center_name }}</li>
+        <li><strong>Schedule:</strong> {{ enrollment.get_schedule_info() }}</li>
+        <li><strong>Status:</strong> {{ enrollment.get_status_display() }}</li>
+    </ul>
+</div>
+
+{% if enrollment.status == 'pending' %}
+<p>Your enrollment request is currently <strong>pending approval</strong> from {{ center.center_name }}. 
+We'll notify you once it's been reviewed and approved.</p>
+{% endif %}
+
+<p>Program Details:</p>
+<ul>
+    <li><strong>Age Range:</strong> {{ program.get_age_range() }}</li>
+    <li><strong>Price:</strong> {{ program.get_price_display() }}</li>
+    {% if program.duration_minutes %}
+    <li><strong>Duration:</strong> {{ program.duration_minutes }} minutes per session</li>
+    {% endif %}
+</ul>
+
+<p>If you have any questions about this enrollment, please contact {{ center.center_name }} directly:</p>
+<ul>
+    <li><strong>Email:</strong> {{ center.user.email }}</li>
+    {% if center.user.phone %}
+    <li><strong>Phone:</strong> {{ center.user.phone }}</li>
+    {% endif %}
+</ul>
+
+<p>Best regards,<br>The EduPlatform Team</p>
+{% endblock %}
